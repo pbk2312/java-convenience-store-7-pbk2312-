@@ -4,10 +4,74 @@
 
 # 기능 목록 정리
 
-## 상품 선택 및 수량 입력 기능
+- [x] ## 입력(InputView)
+- `inputProductSelection()`:
+    - 사용자로부터 상품 선택 및 수량을 입력받습니다.
+- `inputMembershipChoice()`:
+    - 사용자에게 멤버십 할인 적용 여부를 묻고 입력을 받습니다.
+- `inputAdditionalPurchase()`:
+    - 추가 구매 여부를 묻고 입력을 받습니다.
+- `inputPromotionAdd(String productName, int quantity)`:
+    - 프로모션 적용이 가능한 상품에 대해 고객이 해당 수량만큼 가져오지 않았을 경우,혜택에 대한 안내
+- `inputPromotionLack(String productName, int quantity)`:
+    - 프로모션 재고가 부족하여 일부 수량을 프로모션 혜택 없이 결제해야 하는 경우,일부 수량에 대해 정가로 결제할지 여부에 대한 안내
+- `close()`:
+    - 콘솔 자원을 해제합니다.
+- `readInput(String message)`:
+    - 주어진 메시지를 콘솔에 출력하고 사용자 입력을 읽어 반환하는 내부 유틸리티 메소드
+    - `Console.readLine()`을 통해 입력을 받아옵니다.
 
-- 사용자로부터 상품을 선택하고 수량을 입력받기 (View)
-- 입력된 값이 유효하지 않을 경우 `[ERROR]`로 시작하는 오류 메시지를 출력하고 재입력을 요청 (Validation)
+- [x] ## 입력에 대한 검증 (InputValidator)
+
+- `validateProductSelection(String input, Map<String, Integer> productInventory)`:
+    - 사용자가 입력한 상품과 수량의 형식을 검증하고 입력이 유효한지 확인합니다.
+    - 예외 발생 예시:
+        - 빈 입력: `''` → `[ERROR] 입력이 비어 있습니다. 값을 입력해 주세요.` (`EMPTY_INPUT`)
+        - 형식 오류 (상품명이 빈 경우): `'[-10]'` → `[ERROR] 올바른 형식으로 입력해 주세요. 예: [콜라-10],[사이다-3]` (`INVALID_FORMAT`)
+        - 존재하지 않는 상품: `'[없는상품-3]'` → `[ERROR] 존재하지 않는 상품입니다. 다시 입력해 주세요.` (`NON_EXISTENT_PRODUCT`)
+
+- `validateProductDetails(String product, Map<String, Integer> productInventory)`:
+    - 개별 상품의 이름과 수량이 유효한지 확인합니다.
+
+- `validateFormat(String product)`:
+    - 상품과 수량이 "[상품명-수량]" 형식에 맞는지 검증합니다.
+    - 형식이 유효하지 않을 경우 `INVALID_FORMAT` 오류 메시지를 출력합니다.
+    - 예외 발생 예시:
+        - 잘못된 구분자 사용: `'[콜라=10]'` → `[ERROR] 올바른 형식으로 입력해 주세요. 예: [콜라-10],[사이다-3]` (`INVALID_FORMAT`)
+        - 쉼표 없는 구분: `'[콜라-10][사이다-3]'` → `[ERROR] 올바른 형식으로 입력해 주세요. 예: [콜라-10],[사이다-3]` (`INVALID_FORMAT`)
+        - 하이픈 없는 경우: `'[콜라10],[사이다-3]'` → `[ERROR] 올바른 형식으로 입력해 주세요. 예: [콜라-10],[사이다-3]` (`INVALID_FORMAT`)
+
+- `validateNonZeroQuantity(int quantity)`:
+    - 입력된 수량이 0이 아닌지 검증합니다.
+    - 수량이 0일 경우 `ZERO_QUANTITY` 오류 메시지를 출력합니다.
+    - 예외 발생 예시:
+        - 수량이 0인 경우: `'[콜라-0]'` → `[ERROR] 수량은 0보다 커야 합니다.` (`ZERO_QUANTITY`)
+
+- `validateProductExistsInInventory(String productName, Map<String, Integer> productInventory)`:
+    - 입력한 상품이 상품 목록에 존재하는지 확인합니다.
+    - 상품이 존재하지 않을 경우 `NON_EXISTENT_PRODUCT` 오류 메시지를 출력합니다.
+    - 예외 발생 예시:
+        - 존재하지 않는 상품: `'[없는상품-3]'` → `[ERROR] 존재하지 않는 상품입니다. 다시 입력해 주세요.` (`NON_EXISTENT_PRODUCT`)
+
+- `validateSufficientStock(String productName, int quantity, Map<String, Integer> productInventory)`:
+    - 입력한 수량이 재고를 초과하지 않는지 확인합니다.
+    - 수량이 재고보다 많을 경우 `INVALID_QUANTITY` 오류 메시지를 출력합니다.
+    - 예외 발생 예시:
+        - 재고 초과 수량 입력: `'[콜라-15]'` (재고 10) → `[ERROR] 요청한 수량이 유효하지 않거나 재고를 초과합니다.` (`INVALID_QUANTITY`)
+        - 재고가 없는 상품 선택: `'[우아한돼지들-1]'` (재고 0) → `[ERROR] 요청한 수량이 유효하지 않거나 재고를 초과합니다.` (`INVALID_QUANTITY`)
+
+- `validateNotEmpty(String input)`:
+    - 입력이 비어 있지 않은지 확인합니다.
+    - 비어 있거나 공백인 경우 `EMPTY_INPUT` 오류 메시지를 출력합니다.
+    - 예외 발생 예시:
+        - 빈 입력: `''` → `[ERROR] 입력이 비어 있습니다. 값을 입력해 주세요.` (`EMPTY_INPUT`)
+
+- `validateYesOrNo(String input)`:
+    - 입력이 "Y" 또는 "N"인지 확인합니다.
+    - 이외의 값을 입력할 경우 `INVALID_YES_NO` 오류 메시지를 출력합니다.
+    - 예외 발생 예시:
+        - 잘못된 값: `'우아한테크코스'` → `[ERROR] Y 또는 N을 입력해 주세요.` (`INVALID_YES_NO`)
+        - 소문자 입력: `'y'` 또는 `'n'` → `[ERROR] Y 또는 N을 입력해 주세요.` (`INVALID_YES_NO`)
 
 ## 재고 관리 기능
 
