@@ -39,7 +39,7 @@ class InputValidatorTest {
     }
 
     @Test
-    @DisplayName("정상 입력 값에 대해 예외가 발생하지 않아야 한다")
+    @DisplayName("정상 입력 값에 대해 예외가 발생하지 X")
     void shouldNotThrowExceptionForValidProductSelection() {
         Map<String, Integer> productInventory = new HashMap<>();
         productInventory.put("콜라", 10);
@@ -56,12 +56,25 @@ class InputValidatorTest {
     @CsvSource({
             "'우아한테크코스', INVALID_YES_NO",
             "'maybe', INVALID_YES_NO",
-            "'', EMPTY_INPUT"
+            "'', EMPTY_INPUT",
+            "'y', INVALID_YES_NO", // 소문자는 허용 X
+            "'n', INVALID_YES_NO" // 소문자는 허용 X
     })
     void shouldThrowErrorForInvalidYesOrNoInput(String input, String errorCode) {
         assertThatThrownBy(() -> InputValidator.validateYesOrNo(input))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage(ErrorMessage.valueOf(errorCode).getMessage());
+    }
+
+    @ParameterizedTest
+    @DisplayName("Y/N 정상 입력 값에 대해 예외가 발생 X")
+    @CsvSource({
+            "'Y'",
+            "'N'"
+    })
+    void shouldNotThrowExceptionForValidYesOrNoInput(String input) {
+        assertThatNoException()
+                .isThrownBy(() -> InputValidator.validateYesOrNo(input));
     }
 
 }

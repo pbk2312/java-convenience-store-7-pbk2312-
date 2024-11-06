@@ -64,7 +64,7 @@ public class InputValidator {
 
     public static void validateYesOrNo(String input) {
         validateNotEmpty(input);
-        if (!input.equalsIgnoreCase("Y") && !input.equalsIgnoreCase("N")) {
+        if (!input.equals("Y") && !input.equals("N")) {
             throw new IllegalArgumentException(ErrorMessage.INVALID_YES_NO.getMessage());
         }
     }
