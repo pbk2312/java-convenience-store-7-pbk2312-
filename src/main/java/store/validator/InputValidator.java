@@ -10,7 +10,7 @@ public class InputValidator {
 
     public static void validateProductSelection(String input, Map<String, Integer> productInventory) {
         validateNotEmpty(input);
-        String[] items = ParsingUtils.splitItems(input, ",");
+        String[] items = ParsingUtils.splitProducts(input, ",");
         for (String item : items) {
             validateSingleItem(item, productInventory);
         }
