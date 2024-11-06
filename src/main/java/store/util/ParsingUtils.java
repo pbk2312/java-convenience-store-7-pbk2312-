@@ -17,4 +17,8 @@ public class ParsingUtils {
         return Integer.parseInt(item.substring(item.indexOf('-') + 1, item.length() - 1));
     }
 
+    // 인스턴스화 방지
+    private ParsingUtils() {
+    }
+
 }
