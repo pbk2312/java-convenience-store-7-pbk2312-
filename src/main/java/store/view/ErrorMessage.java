@@ -12,6 +12,7 @@ public enum ErrorMessage {
     PROMOTION_LOAD_ERROR("프로모션 정보를 불러오는 중 오류가 발생했습니다."),
     INVALID_PROMOTION_DATES("프로모션 시작일은 종료일보다 이전이어야 합니다.");
 
+
     private static final String ERROR_PREFIX = "[ERROR] ";
     private final String message;
 
