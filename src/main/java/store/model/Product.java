@@ -31,6 +31,10 @@ public class Product {
         return stock;
     }
 
+    public Promotion getPromotion() {
+        return promotion;
+    }
+
     public void deductStock(int quantity) {
         if (quantity > stock) {
             throw new IllegalStateException(ErrorMessage.INVALID_QUANTITY.getMessage());
