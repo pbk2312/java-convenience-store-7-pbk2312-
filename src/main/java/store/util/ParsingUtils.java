@@ -1,20 +1,35 @@
 package store.util;
 
+import java.time.LocalDate;
+
 public class ParsingUtils {
 
-    // 상품 분리
     public static String[] splitProducts(String input, String delimiter) {
         return input.split(delimiter);
     }
 
-    // 상품명 추출
-    public static String extractProductName(String item) {
-        return item.substring(1, item.indexOf('-'));
+    public static String extractProductName(String product) {
+        return product.substring(1, product.indexOf('-'));
     }
 
-    // 수량 추출
-    public static int extractQuantity(String item) {
-        return Integer.parseInt(item.substring(item.indexOf('-') + 1, item.length() - 1));
+    public static int extractQuantity(String product) {
+        return Integer.parseInt(product.substring(product.indexOf('-') + 1, product.length() - 1));
+    }
+
+    public static double parseDouble(String value) {
+        return Double.parseDouble(value);
+    }
+
+    public static int parseInt(String value) {
+        return Integer.parseInt(value);
+    }
+
+    public static LocalDate parseLocalDate(String date) {
+        return LocalDate.parse(date);
+    }
+
+    public static boolean isNullValue(String value) {
+        return "null".equals(value);
     }
 
     // 인스턴스화 방지
