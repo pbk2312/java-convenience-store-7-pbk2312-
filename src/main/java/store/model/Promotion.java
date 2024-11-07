@@ -8,7 +8,7 @@ public class Promotion {
     private final PromotionStrategy strategy;
     private final LocalDate startDate;
     private final LocalDate endDate;
-    private final String description; // 한글 설명 추가
+    private final String description;
 
     public Promotion(PromotionStrategy strategy, LocalDate startDate, LocalDate endDate, String description) {
         if (startDate.isAfter(endDate)) {
@@ -35,5 +35,6 @@ public class Promotion {
     public String getDescription() { // 한글 설명 반환 메서드
         return description;
     }
+
 
 }
