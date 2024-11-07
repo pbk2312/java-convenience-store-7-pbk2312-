@@ -23,7 +23,7 @@ public class OrderService {
         Product product = inventory.getProductList().stream()
                 .filter(p -> p.getName().equals(productName))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException(ErrorMessage.PRODUCT_NOT_FOUND.getMessage()));
+                .orElseThrow(() -> new IllegalArgumentException(ErrorMessage.NON_EXISTENT_PRODUCT.getMessage()));
 
         productService.deductStock(product, quantity);  // 재고 차감
         order.addProduct(product, quantity);
