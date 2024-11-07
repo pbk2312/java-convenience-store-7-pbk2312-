@@ -1,33 +1,55 @@
 package store.view;
 
-import java.util.List;
+import java.text.NumberFormat;
+import java.util.Locale;
+import store.model.Inventory;
 import store.model.Product;
 
 public class OutputView {
 
     public void displayWelcomeMessage() {
-        System.out.print(ViewMessage.WELCOME_MESSAGE.getMessage());
+        System.out.println(ViewMessage.WELCOME_MESSAGE.getMessage());
     }
 
-    public void displayProducts(List<Product> products) {
+    public void displayProductList(Inventory inventory) {
         displayWelcomeMessage();
-        products.forEach(product -> System.out.println(formatProductInfo(product)));
+        inventory.getProductList().forEach(this::displayProduct);
     }
 
-    private String formatProductInfo(Product product) {
-        String promotionInfo = product.getPromotion() != null ? product.getPromotion().getDescription() : "";
-        String stockInfo = product.getStock() > 0 ? product.getStock() + "개" : "재고 없음";
-        return String.format("- %s %,d원 %s%s", product.getName(), (int) product.getPrice(), stockInfo,
-                promotionInfo.isEmpty() ? "" : " " + promotionInfo);
+    private void displayProduct(Product product) {
+        String formattedPrice = formatPrice(product.getPrice());
+        String promotionText = product.getPromotion() != null ? " " + product.getPromotion().getDescription() : "";
+        String stockText = product.getStock() > 0 ? product.getStock() + "개" : "재고 없음";
+
+        System.out.printf("- %s %s원 %s%s%n",
+                product.getName(),
+                formattedPrice,
+                stockText,
+                promotionText);
     }
 
-    public void displayMessage(ViewMessage message) {
-        System.out.println(message.getMessage());
+    public void promptProductSelection() {
+        System.out.println(ViewMessage.INPUT_PRODUCT_SELECTION.getMessage());
     }
 
-    public void displayFormattedMessage(ViewMessage message, Object... args) {
-        System.out.printf(message.getMessage(), args);
-        System.out.println();
+    public void promptMembershipChoice() {
+        System.out.println(ViewMessage.INPUT_MEMBERSHIP_CHOICE.getMessage());
+    }
+
+    public void promptAdditionalPurchase() {
+        System.out.println(ViewMessage.INPUT_ADDITIONAL_PURCHASE.getMessage());
+    }
+
+    public void promptPromotionAdd(String productName, int additionalQuantity) {
+        System.out.printf(ViewMessage.PROMOTION_ADD.getMessage(), productName, additionalQuantity);
+    }
+
+    public void promptPromotionLack(String productName, int quantity) {
+        System.out.printf(ViewMessage.PROMOTION_LACK.getMessage(), productName, quantity);
+    }
+
+    private String formatPrice(double price) {
+        return NumberFormat.getNumberInstance(Locale.KOREA).format(price);
     }
 
 }
