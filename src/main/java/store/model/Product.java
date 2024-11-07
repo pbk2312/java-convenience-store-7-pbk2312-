@@ -19,6 +19,7 @@ public class Product {
         this.promotion = promotion;
     }
 
+
     public String getName() {
         return name;
     }

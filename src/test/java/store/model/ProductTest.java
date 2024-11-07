@@ -42,7 +42,7 @@ public class ProductTest {
     @Test
     public void testCalculateFinalPrice_OnePlusOnePromotion() {
         Promotion onePlusOnePromotion = new Promotion(
-                new OnePlusOnePromotion(), LocalDate.now().minusDays(1), LocalDate.now().plusDays(1)
+                new OnePlusOnePromotion(), LocalDate.now().minusDays(1), LocalDate.now().plusDays(1), "1+1"
         );
         Product product = new Product("우아한돼지들", 1500.00, 10, onePlusOnePromotion);
         double price = product.calculateFinalPrice(3); // 1+1 조건으로, 2개 가격만 지불
@@ -52,7 +52,7 @@ public class ProductTest {
     @Test
     public void testCalculateFinalPrice_TwoPlusOnePromotion() {
         Promotion twoPlusOnePromotion = new Promotion(
-                new TwoPlusOnePromotion(), LocalDate.now().minusDays(1), LocalDate.now().plusDays(1)
+                new TwoPlusOnePromotion(), LocalDate.now().minusDays(1), LocalDate.now().plusDays(1), "2+1"
         );
         Product product = new Product("우아한돼지들", 1000.00, 10, twoPlusOnePromotion);
         double price = product.calculateFinalPrice(3); // 2+1 조건으로, 2개 가격만 지불
@@ -62,7 +62,7 @@ public class ProductTest {
     @Test
     public void testCalculateFinalPrice_PromotionInactive() {
         Promotion expiredPromotion = new Promotion(
-                new OnePlusOnePromotion(), LocalDate.now().minusDays(10), LocalDate.now().minusDays(1)
+                new OnePlusOnePromotion(), LocalDate.now().minusDays(10), LocalDate.now().minusDays(1), "1+1"
         );
         Product product = new Product("우아한돼지들", 1500.00, 10, expiredPromotion);
         double price = product.calculateFinalPrice(3); // 프로모션이 만료됨
