@@ -18,7 +18,7 @@ public class InputValidator {
 
     private static void validateFormat(String product) {
         if (!isValidFormat(product)) {
-            throw new IllegalArgumentException(ErrorMessage.INVALID_FORMAT.getMessage());
+            logError(ErrorMessage.INVALID_FORMAT);
         }
     }
 
@@ -28,15 +28,19 @@ public class InputValidator {
 
     private static void validateNotEmpty(String input) {
         if (input == null || input.isBlank()) {
-            throw new IllegalArgumentException(ErrorMessage.EMPTY_INPUT.getMessage());
+            logError(ErrorMessage.EMPTY_INPUT);
         }
     }
 
     public static void validateYesOrNo(String input) {
         validateNotEmpty(input);
         if (!input.equals("Y") && !input.equals("N")) {
-            throw new IllegalArgumentException(ErrorMessage.INVALID_YES_NO.getMessage());
+            logError(ErrorMessage.INVALID_YES_NO);
         }
+    }
+
+    private static void logError(ErrorMessage errorMessage) {
+        throw new IllegalArgumentException(errorMessage.getMessage());
     }
 
 }
