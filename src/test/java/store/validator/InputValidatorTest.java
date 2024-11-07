@@ -3,8 +3,6 @@ package store.validator;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import java.util.HashMap;
-import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -14,44 +12,28 @@ import store.view.ErrorMessage;
 class InputValidatorTest {
 
     @ParameterizedTest
-    @DisplayName("다양한 입력 값에 따른 예외 발생 여부 테스트")
+    @DisplayName("잘못된 형식 및 빈 값에 따른 예외 발생 여부 테스트")
     @CsvSource({
             "'', EMPTY_INPUT",                           // 빈 입력
             "'[-10]', INVALID_FORMAT",                   // 상품명이 빈 경우
-            "'[콜라-0]', ZERO_QUANTITY",                 // 요청한 상품의 수량이 0인 경우
-            "'[콜라=10]', INVALID_FORMAT",               // 형식 오류 - 잘못된 구분자
-            "'[콜라-10][사이다-3]', INVALID_FORMAT",     // 형식 오류 - 쉼표 없이 구분
-            "'[콜라10],[사이다-3]', INVALID_FORMAT",     // 형식 오류 - 하이픈 없는 경우
-            "'[콜라-10],[사이다-0]', ZERO_QUANTITY",     // 여러 상품 중 하나의 수량이 0인 경우
-            "'[없는상품-3]', NON_EXISTENT_PRODUCT",      // 존재하지 않는 상품
-            "'[콜라-15]', INVALID_QUANTITY",             // 재고보다 많은 수량
-            "'[콜라--15]', INVALID_FORMAT",              // 잘못된 구분자
-            "'[우아한돼지들-1]', INVALID_QUANTITY"         // 재고가 없는 상품 선택 시 예외 발생
+            "'[우아한돼지=10]', INVALID_FORMAT",               // 형식 오류 - 잘못된 구분자
+            "'[우아한유한-10][합격-3]', INVALID_FORMAT",     // 형식 오류 - 쉼표 없이 구분
+            "'[우아한사이다],[성공-3]', INVALID_FORMAT",     // 형식 오류 - 하이픈 없는 경우
+            "'[우아한합격--15]', INVALID_FORMAT"               // 잘못된 구분자
     })
-    void shouldThrowExceptionForInvalidProductSelection(String input, String expectedErrorCode) {
-        // 샘플 상품 재고 구성
-        Map<String, Integer> productInventory = new HashMap<>();
-        productInventory.put("콜라", 10);
-        productInventory.put("우아한돼지들", 0);  // 우아한돼지들은 재고가 없는 상태로 설정
-        productInventory.put("사이다", 5);
-
-        assertThatThrownBy(() -> InputValidator.validateProductSelection(input, productInventory))
+    void shouldThrowExceptionForInvalidProductSelectionFormat(String input, String expectedErrorCode) {
+        assertThatThrownBy(() -> InputValidator.validateProductSelectionFormat(input))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage(ErrorMessage.valueOf(expectedErrorCode).getMessage());
     }
 
-
     @Test
-    @DisplayName("정상 입력 값에 대해 예외가 발생하지 X")
-    void shouldNotThrowExceptionForValidProductSelection() {
-        Map<String, Integer> productInventory = new HashMap<>();
-        productInventory.put("콜라", 10);
-        productInventory.put("사이다", 5);
-
+    @DisplayName("정상 형식의 입력 값에 대해 예외가 발생하지 X")
+    void shouldNotThrowExceptionForValidProductSelectionFormat() {
         String validInput = "[콜라-2],[사이다-3]";
 
         assertThatNoException()
-                .isThrownBy(() -> InputValidator.validateProductSelection(validInput, productInventory));
+                .isThrownBy(() -> InputValidator.validateProductSelectionFormat(validInput));
     }
 
     @ParameterizedTest
@@ -70,7 +52,7 @@ class InputValidatorTest {
     }
 
     @ParameterizedTest
-    @DisplayName("Y/N 정상 입력 값에 대해 예외가 발생 X")
+    @DisplayName("Y/N 정상 입력 값에 대해 예외가 발생하지 X")
     @CsvSource({
             "'Y'",
             "'N'"
