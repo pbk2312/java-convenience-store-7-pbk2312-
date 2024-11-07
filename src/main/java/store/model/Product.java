@@ -1,7 +1,5 @@
 package store.model;
 
-import store.view.ErrorMessage;
-
 public class Product {
     private final String name;
     private final double price;
@@ -19,7 +17,6 @@ public class Product {
         this.promotion = promotion;
     }
 
-
     public String getName() {
         return name;
     }
@@ -36,18 +33,9 @@ public class Product {
         return promotion;
     }
 
-    public void deductStock(int quantity) {
-        if (quantity > stock) {
-            throw new IllegalStateException(ErrorMessage.INVALID_QUANTITY.getMessage());
-        }
-        stock -= quantity;
-    }
-
-    public double calculateFinalPrice(int quantity) {
-        if (promotion != null) {
-            return promotion.calculateDiscountedPrice(quantity, price);
-        }
-        return price * quantity;
+    // 재고를 직접 차감하지 않고 서비스에서 관리
+    public void adjustStock(int quantity) {
+        this.stock -= quantity;
     }
 
 }
