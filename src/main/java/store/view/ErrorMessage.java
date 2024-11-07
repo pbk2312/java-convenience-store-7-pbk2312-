@@ -9,7 +9,8 @@ public enum ErrorMessage {
     EMPTY_INPUT("입력이 비어 있습니다. 값을 입력해 주세요."),
     ZERO_QUANTITY("수량은 0보다 커야 합니다."),
     PRODUCT_LOAD_ERROR("제품 정보를 불러오는 중 오류가 발생했습니다."),
-    PROMOTION_LOAD_ERROR("프로모션 정보를 불러오는 중 오류가 발생했습니다.");
+    PROMOTION_LOAD_ERROR("프로모션 정보를 불러오는 중 오류가 발생했습니다."),
+    INVALID_PROMOTION_DATES("프로모션 시작일은 종료일보다 이전이어야 합니다.");
 
     private static final String ERROR_PREFIX = "[ERROR] ";
     private final String message;
