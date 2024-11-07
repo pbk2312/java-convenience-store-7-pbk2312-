@@ -2,6 +2,7 @@ package store.view;
 
 public enum ViewMessage {
 
+    WELCOME_MESSAGE("안녕하세요. W편의점입니다.\n현재 보유하고 있는 상품입니다.\n"),
     INPUT_PRODUCT_SELECTION("구매할 상품과 수량을 입력해 주세요. (예: [콜라-10],[사이다-3])"),
     INPUT_MEMBERSHIP_CHOICE("멤버십 할인을 받으시겠습니까? (Y/N)"),
     INPUT_ADDITIONAL_PURCHASE("감사합니다. 구매하고 싶은 다른 상품이 있나요? (Y/N)"),
