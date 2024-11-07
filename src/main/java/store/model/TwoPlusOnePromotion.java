@@ -8,4 +8,9 @@ public class TwoPlusOnePromotion implements PromotionStrategy {
         return payableQuantity * price;
     }
 
+    @Override
+    public String getType() {
+        return "2+1";
+    }
+
 }

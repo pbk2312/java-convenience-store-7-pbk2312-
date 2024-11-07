@@ -8,4 +8,9 @@ public class OnePlusOnePromotion implements PromotionStrategy {
         return payableQuantity * price;
     }
 
+    @Override
+    public String getType() {
+        return "1+1";
+    }
+
 }
