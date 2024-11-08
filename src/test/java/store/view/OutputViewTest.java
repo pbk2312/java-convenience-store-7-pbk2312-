@@ -8,7 +8,7 @@ import java.util.Map;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import store.loader.ProductLoader;
+import store.loader.InventoryLoader;
 import store.model.Inventory;
 import store.model.Promotion;
 
@@ -24,14 +24,14 @@ public class OutputViewTest {
         outputView = new OutputView();
 
         // ProductLoader를 사용하여 파일에서 데이터 로드
-        ProductLoader productLoader = new ProductLoader();
+        InventoryLoader inventoryLoader = new InventoryLoader();
         inventory = new Inventory();
 
         // 프로모션 로드
-        Map<String, Promotion> promotions = productLoader.loadPromotions();
+        Map<String, Promotion> promotions = inventoryLoader.loadPromotions();
 
         // 제품 목록 로드
-        productLoader.loadProducts(inventory, promotions);
+        inventoryLoader.loadProducts(inventory, promotions);
     }
 
     @AfterEach
