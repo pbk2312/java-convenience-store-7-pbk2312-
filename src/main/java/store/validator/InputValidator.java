@@ -26,7 +26,7 @@ public class InputValidator {
         return product.matches(PRODUCT_FORMAT_REGEX);
     }
 
-    private static void validateNotEmpty(String input) {
+    public static void validateNotEmpty(String input) {
         if (input == null || input.isBlank()) {
             logError(ErrorMessage.EMPTY_INPUT);
         }
