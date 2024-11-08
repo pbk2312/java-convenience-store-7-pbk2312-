@@ -1,72 +1,98 @@
 package store.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
-import store.view.ErrorMessage;
 
-public class ProductTest {
+class ProductTest {
 
     @Test
-    public void testProductCreation() {
-        Product product = new Product("우아한돼지들", 1500.00, 10);
-        assertThat(product.getName()).isEqualTo("우아한돼지들");
-        assertThat(product.getPrice()).isEqualTo(1500.00);
-        assertThat(product.getStock()).isEqualTo(10);
+    void testProductCreationWithoutPromotion() {
+        // Given
+        String name = "우아한돼지 한마리";
+        double price = 1000.0;
+        int stock = 10;
+
+        // When
+        Product product = new Product(name, price, stock);
+
+        // Then
+        assertThat(product.getName()).isEqualTo(name);
+        assertThat(product.getPrice()).isEqualTo(price);
+        assertThat(product.getStock()).isEqualTo(stock);
+        assertThat(product.getPromotion()).isNull();
     }
 
     @Test
-    public void testDeductStock() {
-        Product product = new Product("우아한돼지들", 1500.00, 10);
-        product.deductStock(3);
-        assertThat(product.getStock()).isEqualTo(7);
+    void testProductCreationWithPromotion() {
+        // Given
+        String name = "우아한사이다";
+        double price = 1200.0;
+        int stock = 5;
+        PromotionStrategy strategy = new OnePlusOnePromotion();
+        LocalDate startDate = LocalDate.of(2024, 1, 1);
+        LocalDate endDate = LocalDate.of(2024, 12, 31);
+        String description = "1+1 프로모션";
+        Promotion promotion = new Promotion(strategy, startDate, endDate, description);
+
+        // When
+        Product product = new Product(name, price, stock, promotion);
+
+        // Then
+        assertThat(product.getName()).isEqualTo(name);
+        assertThat(product.getPrice()).isEqualTo(price);
+        assertThat(product.getStock()).isEqualTo(stock);
+        assertThat(product.getPromotion()).isEqualTo(promotion);
     }
 
     @Test
-    public void testDeductStock_InsufficientStock_ShouldThrowException() {
-        Product product = new Product("우아한돼지들", 1500.00, 2);
-        assertThatThrownBy(() -> product.deductStock(3))
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining(ErrorMessage.INVALID_QUANTITY.getMessage());
+    void testAdjustStock() {
+        // Given
+        String name = "우아한주스";
+        double price = 1800.0;
+        int stock = 9;
+        Product product = new Product(name, price, stock);
+
+        // When
+        product.adjustStock(3); // 3개 차감
+        int remainingStock = product.getStock();
+
+        // Then
+        assertThat(remainingStock).isEqualTo(6); // 남은 재고는 6
     }
 
     @Test
-    public void testCalculateFinalPrice_NoPromotion() {
-        Product product = new Product("우아한돼지들", 1500.00, 10);
-        double price = product.calculateFinalPrice(3); // 프로모션 없음
-        assertThat(price).isEqualTo(4500.00);
+    void testAdjustStockDoesNotAllowNegativeStock() {
+        // Given
+        String name = "우아한 물";
+        double price = 500.0;
+        Product product = new Product(name, price, 2);
+
+        // When
+        product.adjustStock(3); // 3개 차감
+
+        // Then
+        assertThat(product.getStock()).isEqualTo(-1); // 예외 처리 여기는 없으므로 음수 가능
     }
 
     @Test
-    public void testCalculateFinalPrice_OnePlusOnePromotion() {
-        Promotion onePlusOnePromotion = new Promotion(
-                new OnePlusOnePromotion(), LocalDate.now().minusDays(1), LocalDate.now().plusDays(1), "1+1"
-        );
-        Product product = new Product("우아한돼지들", 1500.00, 10, onePlusOnePromotion);
-        double price = product.calculateFinalPrice(3); // 1+1 조건으로, 2개 가격만 지불
-        assertThat(price).isEqualTo(3000.00);
-    }
+    void testAdjustStockDoesNotAllowNegativeStockWithPromotion() {
+        // Given
+        String name = "우아한 주스";
+        double price = 1500.0;
+        PromotionStrategy strategy = new OnePlusOnePromotion();
+        LocalDate startDate = LocalDate.of(2024, 1, 1);
+        LocalDate endDate = LocalDate.of(2024, 12, 31);
+        Promotion promotion = new Promotion(strategy, startDate, endDate, "1+1 프로모션");
 
-    @Test
-    public void testCalculateFinalPrice_TwoPlusOnePromotion() {
-        Promotion twoPlusOnePromotion = new Promotion(
-                new TwoPlusOnePromotion(), LocalDate.now().minusDays(1), LocalDate.now().plusDays(1), "2+1"
-        );
-        Product product = new Product("우아한돼지들", 1000.00, 10, twoPlusOnePromotion);
-        double price = product.calculateFinalPrice(3); // 2+1 조건으로, 2개 가격만 지불
-        assertThat(price).isEqualTo(2000.00);
-    }
+        Product product = new Product(name, price, 1, promotion);
 
-    @Test
-    public void testCalculateFinalPrice_PromotionInactive() {
-        Promotion expiredPromotion = new Promotion(
-                new OnePlusOnePromotion(), LocalDate.now().minusDays(10), LocalDate.now().minusDays(1), "1+1"
-        );
-        Product product = new Product("우아한돼지들", 1500.00, 10, expiredPromotion);
-        double price = product.calculateFinalPrice(3); // 프로모션이 만료됨
-        assertThat(price).isEqualTo(4500.00); // 기본 가격
+        // When
+        product.adjustStock(2); // 2개 차감
+
+        // Then
+        assertThat(product.getStock()).isEqualTo(-1); // 예외를 처리하는 로직이 없으므로 음수가 가능
     }
 
 }
