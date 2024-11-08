@@ -1,6 +1,5 @@
 package store.service;
 
-import java.time.LocalDate;
 import store.model.Inventory;
 import store.model.Order;
 import store.model.Product;
@@ -25,26 +24,19 @@ public class OrderService {
     }
 
     public void addProductToOrder(Order order, String productName, int quantity) {
-        Product product = inventory.getProductList().stream()
-                .filter(p -> p.getName().equals(productName))
-                .findFirst()
+        Product product = inventory.getProductByName(productName)
                 .orElseThrow(() -> new IllegalArgumentException(ErrorMessage.NON_EXISTENT_PRODUCT.getMessage()));
 
         productService.deductStock(product, quantity);
         order.addProduct(product, quantity);
+        addFreeItemsToOrder(order, product, quantity);
+    }
 
-        // 무료 아이템 계산
-        int freeQuantity = calculateFreeItems(product, quantity);
+    private void addFreeItemsToOrder(Order order, Product product, int quantity) {
+        int freeQuantity = productService.calculateFreeItems(product, quantity);
         if (freeQuantity > 0) {
             order.getFreeItems().put(product, freeQuantity);
         }
-    }
-
-    public int calculateFreeItems(Product product, int quantity) {
-        if (product.getPromotion() != null && product.getPromotion().isActive(LocalDate.now())) {
-            return product.getPromotion().getFreeQuantity(quantity, LocalDate.now());
-        }
-        return 0;
     }
 
     public void applyMembershipDiscount(Order order, boolean isMembership) {
@@ -52,30 +44,38 @@ public class OrderService {
     }
 
     public double calculateFinalTotal(Order order) {
-        double discount = 0.0;
-
-        for (var entry : order.getOrderedProducts().entrySet()) {
-            Product product = entry.getKey();
-            int quantity = entry.getValue();
-            double discountedPrice = pricingService.calculateFinalPrice(product, quantity);
-            discount += (product.getPrice() * quantity) - discountedPrice;
-        }
-
-        order.setEventDiscount(discount);
-        double membershipDiscount = calculateMembershipDiscount(order.getTotalBeforeDiscount() - discount,
+        double eventDiscount = calculateEventDiscount(order);
+        double membershipDiscount = calculateMembershipDiscount(order.getTotalBeforeDiscount() - eventDiscount,
                 order.isMembership());
-        order.setMembershipDiscount(membershipDiscount);
-        double finalTotal = order.getTotalBeforeDiscount() - discount - membershipDiscount;
-        order.setFinalTotal(finalTotal);
-        return finalTotal;
+        return finalizeTotal(order, eventDiscount, membershipDiscount);
     }
 
-    private double calculateMembershipDiscount(double amountAfterPromotionDiscount, boolean isMembership) {
-        if (isMembership) {
-            double discount = amountAfterPromotionDiscount * MEMBERSHIP_DISCOUNT_RATE;
-            return Math.min(discount, MAX_MEMBERSHIP_DISCOUNT);
+    private double calculateEventDiscount(Order order) {
+        return order.getOrderedProducts().entrySet().stream()
+                .mapToDouble(entry -> calculateProductDiscount(entry.getKey(), entry.getValue()))
+                .sum();
+    }
+
+    private double calculateProductDiscount(Product product, int quantity) {
+        double originalPrice = product.getPrice() * quantity;
+        double discountedPrice = pricingService.calculateFinalPrice(product, quantity);
+        return originalPrice - discountedPrice;
+    }
+
+    private double calculateMembershipDiscount(double amountAfterEventDiscount, boolean isMembership) {
+        if (!isMembership) {
+            return 0.0;
         }
-        return 0.0;
+        double discount = amountAfterEventDiscount * MEMBERSHIP_DISCOUNT_RATE;
+        return Math.min(discount, MAX_MEMBERSHIP_DISCOUNT);
+    }
+
+    private double finalizeTotal(Order order, double eventDiscount, double membershipDiscount) {
+        order.setEventDiscount(eventDiscount);
+        order.setMembershipDiscount(membershipDiscount);
+        double finalTotal = order.getTotalBeforeDiscount() - eventDiscount - membershipDiscount;
+        order.setFinalTotal(finalTotal);
+        return finalTotal;
     }
 
 }

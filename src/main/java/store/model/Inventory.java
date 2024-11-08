@@ -2,6 +2,7 @@ package store.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class Inventory {
 
@@ -13,6 +14,12 @@ public class Inventory {
 
     public List<Product> getProductList() {
         return productList;
+    }
+
+    public Optional<Product> getProductByName(String productName) {
+        return productList.stream()
+                .filter(product -> product.getName().equals(productName))
+                .findFirst();
     }
 
 }
