@@ -18,9 +18,9 @@ public class OrderServiceTest {
     @BeforeEach
     public void setUp() {
         ProductService productService = new ProductService();
-        PricingService pricingService = new PricingService(); // PricingService 추가
+        PricingService pricingService = new PricingService();
         inventory = new Inventory();
-        orderService = new OrderService(inventory, productService, pricingService); // 수정된 부분
+        orderService = new OrderService(inventory, productService, pricingService);
 
         inventory.addProduct(new Product("우아한 콜라", 1000.0, 10));
         inventory.addProduct(new Product("우아한 사이다", 1000.0, 5));
@@ -37,7 +37,8 @@ public class OrderServiceTest {
         Order order = orderService.createOrder();
         orderService.addProductToOrder(order, "우아한 콜라", 3);
 
-        assertThat(order.calculateTotal()).isEqualTo(3000.0);
+        double finalTotal = orderService.calculateFinalTotal(order);
+        assertThat(finalTotal).isEqualTo(3000.0);
         assertThat(inventory.getProductList().stream()
                 .filter(product -> product.getName().equals("우아한 콜라"))
                 .findFirst().get().getStock()).isEqualTo(7);
@@ -65,7 +66,8 @@ public class OrderServiceTest {
         orderService.addProductToOrder(order, "우아한 콜라", 5);
 
         orderService.applyMembershipDiscount(order, true);
-        assertThat(order.calculateTotal()).isEqualTo(3500.0); // 5000 - 1500 (30% discount)
+        double finalTotal = orderService.calculateFinalTotal(order);
+        assertThat(finalTotal).isEqualTo(3500.0); // 5000 - 1500 (30% discount)
     }
 
     @Test
