@@ -2,7 +2,9 @@ package store.view;
 
 import java.text.NumberFormat;
 import java.util.Locale;
+import java.util.Map;
 import store.model.Inventory;
+import store.model.Order;
 import store.model.Product;
 
 public class OutputView {
@@ -28,28 +30,52 @@ public class OutputView {
                 promotionText);
     }
 
-    public void promptProductSelection() {
-        System.out.println(ViewMessage.INPUT_PRODUCT_SELECTION.getMessage());
-    }
-
-    public void promptMembershipChoice() {
-        System.out.println(ViewMessage.INPUT_MEMBERSHIP_CHOICE.getMessage());
-    }
-
-    public void promptAdditionalPurchase() {
-        System.out.println(ViewMessage.INPUT_ADDITIONAL_PURCHASE.getMessage());
-    }
-
-    public void promptPromotionAdd(String productName, int additionalQuantity) {
-        System.out.printf(ViewMessage.PROMOTION_ADD.getMessage(), productName, additionalQuantity);
-    }
-
-    public void promptPromotionLack(String productName, int quantity) {
-        System.out.printf(ViewMessage.PROMOTION_LACK.getMessage(), productName, quantity);
-    }
 
     private String formatPrice(double price) {
         return NumberFormat.getNumberInstance(Locale.KOREA).format(price);
+    }
+
+    public void printErrorMessage(String errorMessage) {
+        System.out.println(errorMessage);
+    }
+
+    public void printReceipt(Order order) {
+        System.out.println("==============W 편의점================");
+        printPurchaseDetails(order);
+        printFreeItems(order);
+        printAmountInformation(order);
+        System.out.println("=====================================");
+    }
+
+    private void printPurchaseDetails(Order order) {
+        System.out.println("상품명\t\t수량\t금액");
+        for (Map.Entry<Product, Integer> entry : order.getOrderedProducts().entrySet()) {
+            Product product = entry.getKey();
+            int quantity = entry.getValue();
+            System.out.printf("%s\t\t%d\t%s%n",
+                    product.getName(),
+                    quantity,
+                    formatPrice(product.getPrice() * quantity)
+            );
+        }
+    }
+
+    private void printFreeItems(Order order) {
+        Map<Product, Integer> freeItems = order.getFreeItems();
+        if (!freeItems.isEmpty()) {
+            System.out.println("=============증	정===============");
+            for (Map.Entry<Product, Integer> entry : freeItems.entrySet()) {
+                System.out.printf("%s\t\t%d%n", entry.getKey().getName(), entry.getValue());
+            }
+        }
+    }
+
+    private void printAmountInformation(Order order) {
+        System.out.println("------------------------------------");
+        System.out.printf("총구매액\t\t%s%n", formatPrice(order.getTotalBeforeDiscount()));
+        System.out.printf("행사할인\t\t-%s%n", formatPrice(order.getEventDiscount()));
+        System.out.printf("멤버십할인\t\t-%s%n", formatPrice(order.getMembershipDiscount()));
+        System.out.printf("내실돈\t\t %s%n", formatPrice(order.getFinalTotal()));
     }
 
 }
