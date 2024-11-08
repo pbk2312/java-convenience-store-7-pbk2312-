@@ -17,15 +17,13 @@ public class PromotionTest {
     private PromotionStrategy strategy;
     private LocalDate startDate;
     private LocalDate endDate;
-    private LocalDate currentDate;
 
     @BeforeEach
     public void setUp() {
-        // 기본 프로모션
+        // 기본 프로모션 설정
         strategy = new OnePlusOnePromotion();
         startDate = LocalDate.of(2024, 1, 1);
         endDate = LocalDate.of(2024, 12, 31);
-        currentDate = LocalDate.of(2024, 6, 15);
         promotion = new Promotion(strategy, startDate, endDate, "1+1 Promotion");
     }
 
@@ -37,7 +35,6 @@ public class PromotionTest {
 
     @Test
     public void testPromotionCreationInvalidDates() {
-        // 시작일이 종료일 이후일 때 IllegalArgumentException 예외 발생
         LocalDate invalidStartDate = LocalDate.of(2025, 1, 1);
         LocalDate invalidEndDate = LocalDate.of(2024, 12, 31);
         Exception exception = assertThrows(IllegalArgumentException.class, () ->
@@ -54,26 +51,30 @@ public class PromotionTest {
             "2025-01-01, false"  // 종료일 이후 날짜
     })
     public void testIsActive(LocalDate testDate, boolean expectedResult) {
-        // 주어진 날짜가 프로모션 활성화 기간 내에 있는지 여부 확인
         assertThat(promotion.isActive(testDate)).isEqualTo(expectedResult);
     }
 
     @Test
     public void testCalculateDiscountedPriceWhenActive() {
-        // 프로모션이 활성 상태일 때 할인가가 적용됨
         double price = 1000.0;
         int quantity = 2;
-        double discountedPrice = promotion.calculateDiscountedPrice(quantity, price, currentDate);
+        double discountedPrice = promotion.calculateDiscountedPrice(quantity, price);
         assertThat(discountedPrice).isEqualTo(1000.0); // 1+1 적용 시 2개 중 1개만 결제
     }
 
     @Test
     public void testCalculateDiscountedPriceWhenInactive() {
-        // 프로모션이 비활성 상태일 때 원래 금액이 반환됨
-        LocalDate inactiveDate = LocalDate.of(2023, 12, 31);
         double price = 1000.0;
         int quantity = 2;
-        double originalPrice = promotion.calculateDiscountedPrice(quantity, price, inactiveDate);
+
+        Promotion inactivePromotion = new Promotion(strategy, startDate, endDate, "1+1 Promotion") {
+            @Override
+            public boolean isActive(LocalDate date) {
+                return false;
+            }
+        };
+
+        double originalPrice = inactivePromotion.calculateDiscountedPrice(quantity, price);
         assertThat(originalPrice).isEqualTo(price * quantity);
     }
 
@@ -85,15 +86,20 @@ public class PromotionTest {
     })
     public void testGetFreeQuantityWhenActive(int quantity, int expectedFreeQuantity) {
         // 프로모션이 활성 상태일 때 무료 제공 수량 확인
-        assertThat(promotion.getFreeQuantity(quantity, currentDate)).isEqualTo(expectedFreeQuantity);
+        assertThat(promotion.getFreeQuantity(quantity)).isEqualTo(expectedFreeQuantity);
     }
 
     @Test
     public void testGetFreeQuantityWhenInactive() {
-        // 프로모션이 비활성 상태일 때 무료 제공 수량은 0이어야 함
-        LocalDate inactiveDate = LocalDate.of(2023, 12, 31);
+        Promotion inactivePromotion = new Promotion(strategy, startDate, endDate, "1+1 Promotion") {
+            @Override
+            public boolean isActive(LocalDate date) {
+                return false;
+            }
+        };
+
         int quantity = 2;
-        int freeQuantity = promotion.getFreeQuantity(quantity, inactiveDate);
+        int freeQuantity = inactivePromotion.getFreeQuantity(quantity);
         assertThat(freeQuantity).isEqualTo(0);
     }
 
