@@ -13,12 +13,4 @@ public class ProductService {
         product.adjustStock(quantity);
     }
 
-    // 최종 가격 계산
-    public double calculateFinalPrice(Product product, int quantity) {
-        if (product.getPromotion() != null) {
-            return product.getPromotion().calculateDiscountedPrice(quantity, product.getPrice());
-        }
-        return product.getPrice() * quantity;
-    }
-
 }
