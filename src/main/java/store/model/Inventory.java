@@ -5,11 +5,7 @@ import java.util.List;
 
 public class Inventory {
 
-    private final List<Product> productList;
-
-    public Inventory() {
-        productList = new ArrayList<>();
-    }
+    private final List<Product> productList = new ArrayList<>();
 
     public void addProduct(Product product) {
         productList.add(product);
