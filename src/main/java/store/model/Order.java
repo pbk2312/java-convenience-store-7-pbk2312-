@@ -12,6 +12,7 @@ public class Order {
     private final Map<Product, Integer> orderedProducts;
     private final Map<Product, Integer> freeItems;
     private boolean isMembership;
+    private int totalQuantity;
     private double totalBeforeDiscount;
     private double finalTotal;
     private double eventDiscount;
@@ -23,6 +24,7 @@ public class Order {
         this.orderedProducts = new HashMap<>();
         this.freeItems = new HashMap<>();
         this.isMembership = false;
+        this.totalQuantity = 0; // 초기화
         this.totalBeforeDiscount = 0.0;
         this.finalTotal = 0.0;
         this.eventDiscount = 0.0;
@@ -33,6 +35,7 @@ public class Order {
     public void addProduct(Product product, int quantity) {
         orderedProducts.put(product, quantity);
         totalBeforeDiscount += product.getPrice() * quantity;
+        totalQuantity += quantity; // 총 구매 수량 업데이트
         calculateFreeItems(product, quantity);
     }
 
@@ -79,6 +82,10 @@ public class Order {
 
     public Map<Product, Integer> getFreeItems() {
         return freeItems;
+    }
+
+    public int getTotalQuantity() {
+        return totalQuantity;
     }
 
     public double getTotalBeforeDiscount() {
