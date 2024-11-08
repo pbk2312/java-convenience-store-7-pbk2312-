@@ -1,5 +1,7 @@
 package store.model;
 
+import camp.nextstep.edu.missionutils.DateTimes;
+
 public class Product {
     private final String name;
     private final double price;
@@ -36,6 +38,11 @@ public class Product {
     // 재고를 직접 차감하지 않고 서비스에서 관리
     public void adjustStock(int quantity) {
         this.stock -= quantity;
+    }
+
+    // 프로모션 여부 확인 메서드
+    public boolean hasPromotion() {
+        return promotion != null && promotion.isActive(DateTimes.now().toLocalDate());
     }
 
 }
