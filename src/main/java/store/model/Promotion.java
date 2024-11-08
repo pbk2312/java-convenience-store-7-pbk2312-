@@ -1,10 +1,10 @@
 package store.model;
 
-import camp.nextstep.edu.missionutils.DateTimes;
 import java.time.LocalDate;
 import store.view.ErrorMessage;
 
 public class Promotion {
+
     private final PromotionStrategy strategy;
     private final LocalDate startDate;
     private final LocalDate endDate;
@@ -20,21 +20,26 @@ public class Promotion {
         this.description = description;
     }
 
-    public boolean isActive() {
-        LocalDate today = DateTimes.now().toLocalDate();
-        return !today.isBefore(startDate) && !today.isAfter(endDate);
+    public boolean isActive(LocalDate currentDate) {
+        return !currentDate.isBefore(startDate) && !currentDate.isAfter(endDate);
     }
 
-    public double calculateDiscountedPrice(int quantity, double price) {
-        if (!isActive()) {
+    public double calculateDiscountedPrice(int quantity, double price, LocalDate currentDate) {
+        if (!isActive(currentDate)) {
             return price * quantity;
         }
         return strategy.calculateDiscountedPrice(quantity, price);
     }
 
-    public String getDescription() { // 한글 설명 반환 메서드
-        return description;
+    public int getFreeQuantity(int quantity, LocalDate currentDate) {
+        if (!isActive(currentDate)) {
+            return 0;
+        }
+        return strategy.getFreeQuantity(quantity);
     }
 
+    public String getDescription() {
+        return description;
+    }
 
 }
