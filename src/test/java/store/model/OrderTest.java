@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import camp.nextstep.edu.missionutils.DateTimes;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import store.service.ProductService;
+import store.service.PricingService;
 
 public class OrderTest {
 
@@ -13,13 +13,13 @@ public class OrderTest {
 
     @BeforeEach
     public void setUp() {
-        ProductService productService = new ProductService();
-        order = new Order(productService);
+        PricingService pricingService = new PricingService();
+        order = new Order(pricingService);
     }
 
     @Test
     public void testAddProduct() {
-        Product product = new Product("콜라", 1000.0, 10);
+        Product product = new Product("우아한 콜라", 1000.0, 10);
         order.addProduct(product, 3);
         assertThat(order.calculateTotal()).isEqualTo(3000.0);
     }
@@ -32,7 +32,7 @@ public class OrderTest {
                 DateTimes.now().toLocalDate().plusDays(1),
                 "1+1"
         );
-        Product product = new Product("콜라", 1000.0, 10, promotion);
+        Product product = new Product("우아한 콜라", 1000.0, 10, promotion);
         order.addProduct(product, 3);  // 1+1 프로모션
 
         double total = order.calculateTotal();
@@ -41,7 +41,7 @@ public class OrderTest {
 
     @Test
     public void testCalculateTotal_WithMembershipDiscount() {
-        Product product = new Product("에너지바", 2000.0, 10);
+        Product product = new Product("우아한 에너지바", 2000.0, 10);
         order.addProduct(product, 5);
 
         order.setMembership(true);
@@ -51,7 +51,7 @@ public class OrderTest {
 
     @Test
     public void testCalculateTotal_WithMaxMembershipDiscount() {
-        Product product = new Product("고가 제품", 5000.0, 10);
+        Product product = new Product("우아한 비싼 제품", 5000.0, 10);
         order.addProduct(product, 10); // 총 50000원
 
         order.setMembership(true);
@@ -67,7 +67,7 @@ public class OrderTest {
                 DateTimes.now().toLocalDate().plusDays(1),
                 "2+1"
         );
-        Product product = new Product("사이다", 1000.0, 10, promotion);
+        Product product = new Product("우아한 사이다", 1000.0, 10, promotion);
         order.addProduct(product, 6); // 4개 가격만 적용
 
         order.setMembership(true);
@@ -77,7 +77,7 @@ public class OrderTest {
 
     @Test
     public void testCalculateTotal_WithoutMembershipDiscount() {
-        Product product = new Product("초코바", 1500.0, 5);
+        Product product = new Product("우아한 초코바", 1500.0, 5);
         order.addProduct(product, 3);
 
         order.setMembership(false);
