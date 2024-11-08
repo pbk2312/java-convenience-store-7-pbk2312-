@@ -41,5 +41,5 @@ public class Promotion {
     public String getDescription() {
         return description;
     }
-
+    
 }
