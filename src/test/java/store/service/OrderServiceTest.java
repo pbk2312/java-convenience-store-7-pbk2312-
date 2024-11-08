@@ -18,11 +18,12 @@ public class OrderServiceTest {
     @BeforeEach
     public void setUp() {
         ProductService productService = new ProductService();
+        PricingService pricingService = new PricingService(); // PricingService 추가
         inventory = new Inventory();
-        orderService = new OrderService(inventory, productService);
+        orderService = new OrderService(inventory, productService, pricingService); // 수정된 부분
 
-        inventory.addProduct(new Product("콜라", 1000.0, 10));
-        inventory.addProduct(new Product("사이다", 1000.0, 5));
+        inventory.addProduct(new Product("우아한 콜라", 1000.0, 10));
+        inventory.addProduct(new Product("우아한 사이다", 1000.0, 5));
     }
 
     @Test
@@ -34,11 +35,11 @@ public class OrderServiceTest {
     @Test
     public void testAddProductToOrder_SuccessfulAddition() {
         Order order = orderService.createOrder();
-        orderService.addProductToOrder(order, "콜라", 3);
+        orderService.addProductToOrder(order, "우아한 콜라", 3);
 
         assertThat(order.calculateTotal()).isEqualTo(3000.0);
         assertThat(inventory.getProductList().stream()
-                .filter(product -> product.getName().equals("콜라"))
+                .filter(product -> product.getName().equals("우아한 콜라"))
                 .findFirst().get().getStock()).isEqualTo(7);
     }
 
@@ -53,7 +54,7 @@ public class OrderServiceTest {
     @Test
     public void testAddProductToOrder_InsufficientStock_ShouldThrowException() {
         Order order = orderService.createOrder();
-        assertThatThrownBy(() -> orderService.addProductToOrder(order, "사이다", 10))
+        assertThatThrownBy(() -> orderService.addProductToOrder(order, "우아한 사이다", 10))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining(ErrorMessage.INVALID_QUANTITY.getMessage());
     }
@@ -61,7 +62,7 @@ public class OrderServiceTest {
     @Test
     public void testApplyMembershipDiscount() {
         Order order = orderService.createOrder();
-        orderService.addProductToOrder(order, "콜라", 5);
+        orderService.addProductToOrder(order, "우아한 콜라", 5);
 
         orderService.applyMembershipDiscount(order, true);
         assertThat(order.calculateTotal()).isEqualTo(3500.0); // 5000 - 1500 (30% discount)
@@ -70,8 +71,8 @@ public class OrderServiceTest {
     @Test
     public void testCalculateFinalTotal() {
         Order order = orderService.createOrder();
-        orderService.addProductToOrder(order, "콜라", 3);
-        orderService.addProductToOrder(order, "사이다", 2);
+        orderService.addProductToOrder(order, "우아한 콜라", 3);
+        orderService.addProductToOrder(order, "우아한 사이다", 2);
 
         double finalTotal = orderService.calculateFinalTotal(order);
         assertThat(finalTotal).isEqualTo(5000.0); // 3000 + 2000

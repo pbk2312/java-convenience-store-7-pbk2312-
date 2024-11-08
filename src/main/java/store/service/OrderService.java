@@ -9,14 +9,16 @@ public class OrderService {
 
     private final Inventory inventory;
     private final ProductService productService;
+    private final PricingService pricingService;
 
-    public OrderService(Inventory inventory, ProductService productService) {
+    public OrderService(Inventory inventory, ProductService productService, PricingService pricingService) {
         this.inventory = inventory;
         this.productService = productService;
+        this.pricingService = pricingService;
     }
 
     public Order createOrder() {
-        return new Order(productService);
+        return new Order(pricingService);
     }
 
     public void addProductToOrder(Order order, String productName, int quantity) {
@@ -36,5 +38,6 @@ public class OrderService {
     public double calculateFinalTotal(Order order) {
         return order.calculateTotal();
     }
+
 
 }
