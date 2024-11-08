@@ -71,11 +71,11 @@ public class OutputView {
     }
 
     private void printAmountInformation(Order order) {
-        System.out.println("------------------------------------");
-        System.out.printf("총구매액\t\t%s%n", formatPrice(order.getTotalBeforeDiscount()));
-        System.out.printf("행사할인\t\t-%s%n", formatPrice(order.getEventDiscount()));
-        System.out.printf("멤버십할인\t\t-%s%n", formatPrice(order.getMembershipDiscount()));
-        System.out.printf("내실돈\t\t %s%n", formatPrice(order.getFinalTotal()));
+        System.out.println("====================================");
+        System.out.printf("총구매액\t\t%d\t%s%n", order.getTotalQuantity(), formatPrice(order.getTotalBeforeDiscount()));
+        System.out.printf("행사할인\t\t\t-%s%n", formatPrice(order.getEventDiscount()));
+        System.out.printf("멤버십할인\t\t\t-%s%n", formatPrice(order.getMembershipDiscount()));
+        System.out.printf("내실돈\t\t\t %s%n", formatPrice(order.getFinalTotal()));
     }
 
 }
