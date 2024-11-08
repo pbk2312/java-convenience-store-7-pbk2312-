@@ -1,4 +1,4 @@
-package store.model;
+package store.service.promotion;
 
 public class OnePlusOnePromotion implements PromotionStrategy {
     @Override

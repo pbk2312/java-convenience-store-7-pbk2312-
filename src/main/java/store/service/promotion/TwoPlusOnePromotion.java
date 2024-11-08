@@ -1,4 +1,4 @@
-package store.model;
+package store.service.promotion;
 
 public class TwoPlusOnePromotion implements PromotionStrategy {
     @Override

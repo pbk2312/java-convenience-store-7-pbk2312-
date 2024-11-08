@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
+import store.service.promotion.OnePlusOnePromotion;
+import store.service.promotion.PromotionStrategy;
 
 class ProductTest {
 

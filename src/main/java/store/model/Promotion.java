@@ -2,6 +2,7 @@ package store.model;
 
 import camp.nextstep.edu.missionutils.DateTimes;
 import java.time.LocalDate;
+import store.service.promotion.PromotionStrategy;
 import store.view.ErrorMessage;
 
 public class Promotion {

@@ -5,11 +5,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import store.model.OnePlusOnePromotion;
 import store.model.Product;
 import store.model.Promotion;
-import store.model.PromotionStrategy;
-import store.model.TwoPlusOnePromotion;
+import store.service.promotion.OnePlusOnePromotion;
+import store.service.promotion.PromotionStrategy;
+import store.service.promotion.TwoPlusOnePromotion;
 
 public class PricingServiceTest {
 

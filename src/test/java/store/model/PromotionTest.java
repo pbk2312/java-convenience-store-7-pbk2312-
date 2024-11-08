@@ -9,6 +9,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import store.service.promotion.OnePlusOnePromotion;
+import store.service.promotion.PromotionStrategy;
 import store.view.ErrorMessage;
 
 public class PromotionTest {

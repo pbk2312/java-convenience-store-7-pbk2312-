@@ -6,12 +6,12 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
-import store.model.FlashSalePromotion;
 import store.model.Inventory;
-import store.model.OnePlusOnePromotion;
 import store.model.Product;
 import store.model.Promotion;
-import store.model.TwoPlusOnePromotion;
+import store.service.promotion.FlashSalePromotion;
+import store.service.promotion.OnePlusOnePromotion;
+import store.service.promotion.TwoPlusOnePromotion;
 import store.util.ParsingUtils;
 import store.view.ErrorMessage;
 
