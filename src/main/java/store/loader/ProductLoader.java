@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
-import store.model.CustomPromotion;
+import store.model.FlashSalePromotion;
 import store.model.Inventory;
 import store.model.OnePlusOnePromotion;
 import store.model.Product;
@@ -22,39 +22,31 @@ public class ProductLoader {
 
     public void loadProducts(Inventory inventory, Map<String, Promotion> promotions) {
         Map<String, Integer> productCount = countProductOccurrences();
-        addProductsToInventory(inventory, promotions, productCount);
+        processFile(PRODUCT_FILE_PATH, line -> addProductToInventory(inventory, promotions, productCount, line));
+    }
+
+    private void addProductToInventory(Inventory inventory, Map<String, Promotion> promotions,
+                                       Map<String, Integer> productCount, String line) {
+        Product product = parseProduct(line, promotions);
+        inventory.addProduct(product);
+        addZeroStockProductIfNeeded(inventory, product, productCount);
     }
 
     private Map<String, Integer> countProductOccurrences() {
         Map<String, Integer> productCount = new HashMap<>();
-        try (BufferedReader br = new BufferedReader(new FileReader(PRODUCT_FILE_PATH))) {
-            br.lines().skip(1).forEach(line -> {
-                String productName = ParsingUtils.splitProducts(line, ",")[0];
-                productCount.put(productName, productCount.getOrDefault(productName, 0) + 1);
-            });
-        } catch (IOException e) {
-            logError(ErrorMessage.PRODUCT_LOAD_ERROR, e);
-        }
+        processFile(PRODUCT_FILE_PATH, line -> {
+            String productName = ParsingUtils.splitProducts(line, ",")[0];
+            productCount.put(productName, productCount.getOrDefault(productName, 0) + 1);
+        });
         return productCount;
     }
 
-    private void addProductsToInventory(Inventory inventory, Map<String, Promotion> promotions,
-                                        Map<String, Integer> productCount) {
-        try (BufferedReader br = new BufferedReader(new FileReader(PRODUCT_FILE_PATH))) {
-            br.lines().skip(1).forEach(line -> {
-                Product product = parseProduct(line, promotions);
-                inventory.addProduct(product);
-                addZeroStockProductIfNeeded(inventory, product, productCount);
-            });
+    private void processFile(String filePath, LineProcessor processor) {
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            br.lines().skip(1).forEach(processor::process);
         } catch (IOException e) {
-            logError(ErrorMessage.PRODUCT_LOAD_ERROR, e);
-        }
-    }
-
-    private void addZeroStockProductIfNeeded(Inventory inventory, Product product, Map<String, Integer> productCount) {
-        if (product.getPromotion() != null && productCount.get(product.getName()) == 1) {
-            Product zeroStockProduct = new Product(product.getName(), product.getPrice(), 0, null);
-            inventory.addProduct(zeroStockProduct);
+            logError(filePath.equals(PRODUCT_FILE_PATH) ? ErrorMessage.PRODUCT_LOAD_ERROR
+                    : ErrorMessage.PROMOTION_LOAD_ERROR, e);
         }
     }
 
@@ -73,15 +65,11 @@ public class ProductLoader {
 
     public Map<String, Promotion> loadPromotions() {
         Map<String, Promotion> promotions = new HashMap<>();
-        try (BufferedReader br = new BufferedReader(new FileReader(PROMOTION_FILE_PATH))) {
-            br.lines().skip(1).forEach(line -> addPromotionFromLine(line, promotions));
-        } catch (IOException e) {
-            logError(ErrorMessage.PROMOTION_LOAD_ERROR, e);
-        }
+        processFile(PROMOTION_FILE_PATH, line -> addPromotionFromLine(promotions, line));
         return promotions;
     }
 
-    private void addPromotionFromLine(String line, Map<String, Promotion> promotions) {
+    private void addPromotionFromLine(Map<String, Promotion> promotions, String line) {
         String[] parts = ParsingUtils.splitProducts(line, ",");
         String name = parts[0];
         int buy = ParsingUtils.parseInt(parts[1]);
@@ -93,7 +81,7 @@ public class ProductLoader {
 
     private Promotion createPromotion(int buy, int get, LocalDate startDate, LocalDate endDate, String name) {
         if ("반짝할인".equals(name)) {
-            return new Promotion(new CustomPromotion(), startDate, endDate, "반짝할인");
+            return new Promotion(new FlashSalePromotion(), startDate, endDate, "반짝할인");
         }
         if (buy == 1 && get == 1) {
             return new Promotion(new OnePlusOnePromotion(), startDate, endDate, "MD추천상품");
@@ -106,6 +94,18 @@ public class ProductLoader {
 
     private void logError(ErrorMessage errorMessage, IOException e) {
         System.err.println(errorMessage.getMessage() + ": " + e.getMessage());
+    }
+
+    private void addZeroStockProductIfNeeded(Inventory inventory, Product product, Map<String, Integer> productCount) {
+        if (product.getPromotion() != null && productCount.get(product.getName()) == 1) {
+            Product zeroStockProduct = new Product(product.getName(), product.getPrice(), 0, null);
+            inventory.addProduct(zeroStockProduct);
+        }
+    }
+
+    @FunctionalInterface
+    interface LineProcessor {
+        void process(String line);
     }
 
 }

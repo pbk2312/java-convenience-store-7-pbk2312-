@@ -21,59 +21,89 @@
     - 주어진 메시지를 콘솔에 출력하고 사용자 입력을 읽어 반환하는 내부 유틸리티 메소드
     - `Console.readLine()`을 통해 입력을 받아옵니다.
 
-- [x] ## 입력에 대한 검증 (InputValidator)
+-[x] ## 입력에 대한 검증 (InputValidator)
 
-- `validateProductSelection(String input, Map<String, Integer> productInventory)`:
-    - 사용자가 입력한 상품과 수량의 형식을 검증하고 입력이 유효한지 확인합니다.
-    - 예외 발생 예시:
-        - 빈 입력: `''` → `[ERROR] 입력이 비어 있습니다. 값을 입력해 주세요.` (`EMPTY_INPUT`)
-        - 형식 오류 (상품명이 빈 경우): `'[-10]'` → `[ERROR] 올바른 형식으로 입력해 주세요. 예: [콜라-10],[사이다-3]` (`INVALID_FORMAT`)
-        - 존재하지 않는 상품: `'[없는상품-3]'` → `[ERROR] 존재하지 않는 상품입니다. 다시 입력해 주세요.` (`NON_EXISTENT_PRODUCT`)
-
-- `validateProductDetails(String product, Map<String, Integer> productInventory)`:
-    - 개별 상품의 이름과 수량이 유효한지 확인합니다.
+- `validateProductSelectionFormat(String input)`:
+    - 사용자가 입력한 상품과 수량의 형식을 검증하고,입력이 유효한지 확인합니다.
 
 - `validateFormat(String product)`:
     - 상품과 수량이 "[상품명-수량]" 형식에 맞는지 검증합니다.
     - 형식이 유효하지 않을 경우 `INVALID_FORMAT` 오류 메시지를 출력합니다.
     - 예외 발생 예시:
         - 잘못된 구분자 사용: `'[콜라=10]'` → `[ERROR] 올바른 형식으로 입력해 주세요. 예: [콜라-10],[사이다-3]` (`INVALID_FORMAT`)
-        - 쉼표 없는 구분: `'[콜라-10][사이다-3]'` → `[ERROR] 올바른 형식으로 입력해 주세요. 예: [콜라-10],[사이다-3]` (`INVALID_FORMAT`)
-        - 하이픈 없는 경우: `'[콜라10],[사이다-3]'` → `[ERROR] 올바른 형식으로 입력해 주세요. 예: [콜라-10],[사이다-3]` (`INVALID_FORMAT`)
-
-- `validateNonZeroQuantity(int quantity)`:
-    - 입력된 수량이 0이 아닌지 검증합니다.
-    - 수량이 0일 경우 `ZERO_QUANTITY` 오류 메시지를 출력합니다.
-    - 예외 발생 예시:
-        - 수량이 0인 경우: `'[콜라-0]'` → `[ERROR] 수량은 0보다 커야 합니다.` (`ZERO_QUANTITY`)
-
-- `validateProductExistsInInventory(String productName, Map<String, Integer> productInventory)`:
-    - 입력한 상품이 상품 목록에 존재하는지 확인합니다.
-    - 상품이 존재하지 않을 경우 `NON_EXISTENT_PRODUCT` 오류 메시지를 출력합니다.
-    - 예외 발생 예시:
-        - 존재하지 않는 상품: `'[없는상품-3]'` → `[ERROR] 존재하지 않는 상품입니다. 다시 입력해 주세요.` (`NON_EXISTENT_PRODUCT`)
-
-- `validateSufficientStock(String productName, int quantity, Map<String, Integer> productInventory)`:
-    - 입력한 수량이 재고를 초과하지 않는지 확인합니다.
-    - 수량이 재고보다 많을 경우 `INVALID_QUANTITY` 오류 메시지를 출력합니다.
-    - 예외 발생 예시:
-        - 재고 초과 수량 입력: `'[콜라-15]'` (재고 10) → `[ERROR] 요청한 수량이 유효하지 않거나 재고를 초과합니다.` (`INVALID_QUANTITY`)
-        - 재고가 없는 상품 선택: `'[우아한돼지들-1]'` (재고 0) → `[ERROR] 요청한 수량이 유효하지 않거나 재고를 초과합니다.` (`INVALID_QUANTITY`)
+        - 하이픈 없는 경우: `'[콜라10]'` → `[ERROR] 올바른 형식으로 입력해 주세요. 예: [콜라-10]` (`INVALID_FORMAT`)
 
 - `validateNotEmpty(String input)`:
-    - 입력이 비어 있지 않은지 확인합니다.
-    - 비어 있거나 공백인 경우 `EMPTY_INPUT` 오류 메시지를 출력합니다.
+    - 입력값이 `null`이거나 공백인지 검증합니다.
+    - 빈 입력일 경우 `EMPTY_INPUT` 오류 메시지를 출력합니다.
     - 예외 발생 예시:
         - 빈 입력: `''` → `[ERROR] 입력이 비어 있습니다. 값을 입력해 주세요.` (`EMPTY_INPUT`)
 
 - `validateYesOrNo(String input)`:
-    - 입력이 "Y" 또는 "N"인지 확인합니다.
-    - 이외의 값을 입력할 경우 `INVALID_YES_NO` 오류 메시지를 출력합니다.
+    - 입력값이 "Y" 또는 "N"인지 검증합니다.
+    - 유효하지 않은 입력일 경우 `INVALID_YES_NO` 오류 메시지를 출력합니다.
     - 예외 발생 예시:
-        - 잘못된 값: `'우아한테크코스'` → `[ERROR] Y 또는 N을 입력해 주세요.` (`INVALID_YES_NO`)
-        - 소문자 입력: `'y'` 또는 `'n'` → `[ERROR] Y 또는 N을 입력해 주세요.` (`INVALID_YES_NO`)
+        - `'A'` → `[ERROR] Y 또는 N을 입력해 주세요.` (`INVALID_YES_NO`)
+        - `'Yes'` → `[ERROR] Y 또는 N을 입력해 주세요.` (`INVALID_YES_NO`)
 
-## 재고 관리 기능
+- [x] ## 재고 관리 기능
+
+### 재고 관리 (Inventory(model))
+
+`Inventory`는 상점의 재고 관리를 담당하며,각 상품을 추가하거나 현재 재고 목록을 확인할 수 있는 기능을 제공
+
+- `addProduct(Product product)`:
+    - 매개변수로 받은 `Product` 객체를 `productList`에 추가합니다.
+    - 재고에 새로운 상품을 추가할 때 사용합니다.
+
+- `getProductList()`:
+    - 현재 `Inventory`에 저장된 모든 상품의 목록을 반환합니다.
+    - 현재 재고 상태를 확인 가능
+
+## 제품 및 프로모션 로더 (ProductLoader)
+
+`ProductLoader` 클래스는 외부 파일로부터 제품 및 프로모션 정보를 로드하여 제품들을 채웁니다.
+
+- **`loadProducts(Inventory inventory, Map<String, Promotion> promotions)`**:
+    - 제품 파일을 읽어 `Inventory`에 제품을 추가하고 프로모션 정보를 적용합니다.
+    - 중복된 제품 개수를 파악하여 필요할 경우 재고가 0인 제품을 추가합니다.
+
+- **`countProductOccurrences()`**:
+    - 제품 파일의 각 제품이 몇 번 등장하는지 세고,제품명과 개수를 매핑한 `Map<String, Integer>`를 반환합니다.
+    - 예외 발생 시 `PRODUCT_LOAD_ERROR` 메시지를 출력하고 예외를 던집니다.
+
+- **`addProductsToInventory(Inventory inventory, Map<String, Promotion> promotions, Map<String, Integer> productCount)`
+  **:
+    - 각 줄을 읽어 `Product` 객체를 생성하여 `Inventory`에 추가하고,필요 시 재고 0인 제품을 추가합니다.
+    - 예외 발생 시 `PRODUCT_LOAD_ERROR` 메시지를 출력합니다.
+
+- **`addZeroStockProductIfNeeded(Inventory inventory, Product product, Map<String, Integer> productCount)`**:
+    - 특정 프로모션이 적용되고 파일에 한 번만 나타나는 경우,재고가 0인 제품을 추가합니다.
+
+- **`parseProduct(String line, Map<String, Promotion> promotions)`**:
+    - 파일의 한 줄을 파싱하여 `Product` 객체를 생성하고 반환합니다.
+    - 제품명, 가격, 수량, 프로모션 이름이 포함됩니다.
+
+- **`getPromotionIfExists(String promotionName, Map<String, Promotion> promotions)`**:
+    - 프로모션 이름이 존재하면 해당 프로모션 객체를 반환하며, 없으면 `null`을 반환합니다.
+
+- **`loadPromotions()`**:
+    - 프로모션 파일을 읽어 `Map<String, Promotion>` 형태로 로드합니다.
+    - 예외 발생 시 `PROMOTION_LOAD_ERROR` 메시지를 출력합니다.
+
+- **`addPromotionFromLine(String line, Map<String, Promotion> promotions)`**:
+    - 각 줄을 읽어 프로모션 객체를 생성하여 프로모션 맵에 추가합니다.
+
+### 예외 처리
+
+- **`logError(ErrorMessage errorMessage, Exception e)`**:
+    - 오류 메시지를 출력하고 `IllegalArgumentException`을 던집니다.
+    - `PRODUCT_LOAD_ERROR`와 `PROMOTION_LOAD_ERROR` 메시지를 사용해 오류를 처리합니다.
+
+### 상수 설명
+
+- **`PRODUCT_FILE_PATH`**와 **`PROMOTION_FILE_PATH`**는 각각 제품 및 프로모션 정보 파일의 경로를 나타냅니다.
+
 
 - 각 상품의 재고 수량을 고려하여 결제 가능 여부를 확인 (Service)
 - 구매된 상품 수량만큼 재고에서 차감하여 최신 재고 상태를 유지 (Service)
