@@ -6,10 +6,11 @@ public class OnePlusOnePromotion implements PromotionStrategy {
         int payableQuantity = (quantity + 1) / 2;
         return payableQuantity * price;
     }
-    
+
 
     @Override
     public int getFreeQuantity(int quantity) {
         return quantity / 2;  // 구매한 수량의 절반이 무료 증정
     }
+
 }
