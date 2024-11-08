@@ -26,7 +26,7 @@ public class InventoryLoader {
             FileProcessor.processFile(PRODUCT_FILE_PATH,
                     line -> processProductLine(line, inventory, promotions, productCount));
         } catch (IOException e) {
-            ErrorLogger.logError(ErrorMessage.PRODUCT_LOAD_ERROR, e);
+            logError(ErrorMessage.PRODUCT_LOAD_ERROR, e);
         }
     }
 
@@ -35,7 +35,7 @@ public class InventoryLoader {
         try {
             FileProcessor.processFile(PROMOTION_FILE_PATH, line -> parsePromotion(line, promotions));
         } catch (IOException e) {
-            ErrorLogger.logError(ErrorMessage.PROMOTION_LOAD_ERROR, e);
+            logError(ErrorMessage.PROMOTION_LOAD_ERROR, e);
         }
         return promotions;
     }
@@ -81,7 +81,7 @@ public class InventoryLoader {
         try {
             FileProcessor.processFile(PRODUCT_FILE_PATH, line -> updateProductCount(line, productCount));
         } catch (IOException e) {
-            ErrorLogger.logError(ErrorMessage.PRODUCT_LOAD_ERROR, e);
+            logError(ErrorMessage.PRODUCT_LOAD_ERROR, e);
         }
         return productCount;
     }
@@ -91,17 +91,15 @@ public class InventoryLoader {
         productCount.put(productName, productCount.getOrDefault(productName, 0) + 1);
     }
 
+    private static void logError(ErrorMessage errorMessage, Exception e) {
+        System.err.println(errorMessage.getMessage() + ": " + e.getMessage());
+    }
+
     public static class FileProcessor {
         public static void processFile(String filePath, LineProcessor processor) throws IOException {
             try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
                 br.lines().skip(1).forEach(processor::process);
             }
-        }
-    }
-
-    private static class ErrorLogger {
-        public static void logError(ErrorMessage errorMessage, Exception e) {
-            System.err.println(errorMessage.getMessage() + ": " + e.getMessage());
         }
     }
 
