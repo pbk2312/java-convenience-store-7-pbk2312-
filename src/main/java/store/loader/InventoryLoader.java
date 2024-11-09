@@ -20,13 +20,27 @@ public class InventoryLoader {
     private static final String PRODUCT_FILE_PATH = "src/main/resources/products.md";
     private static final String PROMOTION_FILE_PATH = "src/main/resources/promotions.md";
 
+    private static InventoryLoader instance;
+
+    private InventoryLoader() {
+    }
+
+    public static InventoryLoader getInstance() {
+        if (instance == null) {
+            instance = new InventoryLoader();
+        }
+        return instance;
+    }
+
     public void loadProducts(Inventory inventory, Map<String, Promotion> promotions) {
-        Map<String, Integer> productCount = countProductOccurrences();
-        try {
-            FileProcessor.processFile(PRODUCT_FILE_PATH,
-                    line -> processProductLine(line, inventory, promotions, productCount));
-        } catch (IOException e) {
-            logError(ErrorMessage.PRODUCT_LOAD_ERROR, e);
+        if (inventory.getProductList().isEmpty()) {  // 이미 로드된 경우 다시 로드하지 않음
+            Map<String, Integer> productCount = countProductOccurrences();
+            try {
+                FileProcessor.processFile(PRODUCT_FILE_PATH,
+                        line -> processProductLine(line, inventory, promotions, productCount));
+            } catch (IOException e) {
+                logError(ErrorMessage.PRODUCT_LOAD_ERROR, e);
+            }
         }
     }
 
@@ -39,6 +53,7 @@ public class InventoryLoader {
         }
         return promotions;
     }
+
 
     private void processProductLine(String line, Inventory inventory, Map<String, Promotion> promotions,
                                     Map<String, Integer> productCount) {
