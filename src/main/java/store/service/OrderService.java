@@ -1,42 +1,83 @@
 package store.service;
 
+import java.util.Optional;
 import store.model.Inventory;
 import store.model.Order;
 import store.model.Product;
 import store.view.ErrorMessage;
+import store.view.InputView;
 
 public class OrderService {
 
     private final Inventory inventory;
     private final ProductService productService;
     private final PricingService pricingService;
+    private final InputView inputView;
     private static final double MEMBERSHIP_DISCOUNT_RATE = 0.3;
     private static final double MAX_MEMBERSHIP_DISCOUNT = 8000.0;
 
-    public OrderService(Inventory inventory, ProductService productService, PricingService pricingService) {
+    public OrderService(Inventory inventory, ProductService productService, PricingService pricingService,
+                        InputView inputView) {
         this.inventory = inventory;
         this.productService = productService;
         this.pricingService = pricingService;
+        this.inputView = inputView;
     }
 
     public Order createOrder() {
         return new Order();
     }
 
-    public void addProductToOrder(Order order, String productName, int quantity) {
-        // 주문하려는 제품을 인벤토리에서 찾기
-        Product product = inventory.getProductByName(productName)
+    public void addProductToOrder(Order order, String productName, int quantity, InputView inputView) {
+        // 일반 재고와 프로모션 재고를 인벤토리에서 각각 가져옴
+        Optional<Product> promotionProductOpt = inventory.getPromotionProductByName(productName);
+        Product regularProduct = inventory.getRegularProductByName(productName)
                 .orElseThrow(() -> new IllegalArgumentException(ErrorMessage.NON_EXISTENT_PRODUCT.getMessage()));
 
-        // 제품 서비스에서 재고 차감 수행
-        productService.deductStock(product, quantity);
+        int totalAvailableStock = promotionProductOpt.map(Product::getStock).orElse(0) + regularProduct.getStock();
 
-        inventory.adjustProductStock(product, quantity);
+        // 전체 재고가 요청한 수량보다 적으면 예외 발생
+        if (totalAvailableStock < quantity) {
+            throw new IllegalArgumentException(ErrorMessage.INVALID_QUANTITY.getMessage());
+        }
 
-        order.addProduct(product, quantity);
-        addFreeItemsToOrder(order, product, quantity);
+        if (promotionProductOpt.isEmpty()) {
+            productService.deductStock(regularProduct, quantity);
+            order.addProduct(regularProduct, quantity);
+        } else {
+            Product promotionProduct = promotionProductOpt.get();
+            int promotionalStock = promotionProduct.getStock();
 
+            if (promotionalStock < quantity) {
+                int remainingQuantity = quantity - promotionalStock;
+
+                // InputView를 사용하여 사용자에게 정가 결제 여부를 묻는 메시지 출력
+                String userResponse = inputView.inputPromotionLack(productName, remainingQuantity).trim();
+
+                if (userResponse.equalsIgnoreCase("Y")) {
+                    if (promotionalStock > 0) {
+                        productService.deductStock(promotionProduct, promotionalStock);
+                        order.addProduct(promotionProduct, promotionalStock);
+                        addFreeItemsToOrder(order, promotionProduct, promotionalStock);
+                    }
+                    productService.deductStock(regularProduct, remainingQuantity);
+                    order.addProduct(regularProduct, remainingQuantity);
+                } else {
+                    productService.deductStock(promotionProduct, promotionalStock);
+                    order.addProduct(promotionProduct, promotionalStock);
+                    addFreeItemsToOrder(order, promotionProduct, promotionalStock);
+                }
+            } else {
+                productService.deductStock(promotionProduct, quantity);
+                order.addProduct(promotionProduct, quantity);
+                addFreeItemsToOrder(order, promotionProduct, quantity);
+            }
+        }
+
+        inventory.adjustProductStock(regularProduct);
+        promotionProductOpt.ifPresent(inventory::adjustProductStock);
     }
+
 
     private void addFreeItemsToOrder(Order order, Product product, int quantity) {
         int freeQuantity = productService.calculateFreeItems(product, quantity);
@@ -83,5 +124,6 @@ public class OrderService {
         order.setFinalTotal(finalTotal);
         return finalTotal;
     }
+
 
 }
