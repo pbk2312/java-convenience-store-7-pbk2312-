@@ -6,7 +6,7 @@ import java.util.Optional;
 
 public class Inventory {
 
-    private static Inventory instance;  // 싱글톤
+    private static Inventory instance;  // 싱글톤 인스턴스
 
     private final List<Product> productList = new ArrayList<>();
 
@@ -32,24 +32,25 @@ public class Inventory {
         return productList;
     }
 
-    public Optional<Product> getProductByName(String productName) {
+    public void adjustProductStock(Product product) {
+        productList.replaceAll(p ->
+                p.getName().equals(product.getName()) && p.hasPromotion() == product.hasPromotion()
+                        ? new Product(product.getName(), product.getPrice(), product.getStock(), product.getPromotion())
+                        : p
+        );
+    }
+
+
+    public Optional<Product> getPromotionProductByName(String productName) {
         return productList.stream()
-                .filter(product -> product.getName().equals(productName))
+                .filter(product -> product.getName().equals(productName) && product.hasPromotion())
                 .findFirst();
     }
 
-
-    public void adjustProductStock(Product product, int quantity) {
-        // 차감된 재고 상태를 직접 가져오기
-        Product updatedProduct = new Product(product.getName(), product.getPrice(), product.getStock(),
-                product.getPromotion());
-
-        for (int i = 0; i < productList.size(); i++) {
-            Product p = productList.get(i);
-            if (p.getName().equals(product.getName()) && p.hasPromotion() == product.hasPromotion()) {
-                productList.set(i, updatedProduct);
-                break;
-            }
-        }
+    public Optional<Product> getRegularProductByName(String productName) {
+        return productList.stream()
+                .filter(product -> product.getName().equals(productName) && !product.hasPromotion())
+                .findFirst();
     }
+
 }
