@@ -23,9 +23,9 @@ public class OutputViewTest {
         System.setOut(new PrintStream(outputStreamCaptor));
         outputView = new OutputView();
 
-        // ProductLoader를 사용하여 파일에서 데이터 로드
-        InventoryLoader inventoryLoader = new InventoryLoader();
-        inventory = new Inventory();
+        InventoryLoader inventoryLoader = InventoryLoader.getInstance();
+        inventory = Inventory.getInstance();
+        inventory.getProductList().clear();
 
         // 프로모션 로드
         Map<String, Promotion> promotions = inventoryLoader.loadPromotions();
@@ -70,5 +70,6 @@ public class OutputViewTest {
 
         assertThat(outputStreamCaptor.toString().trim()).isEqualTo(expectedOutput.trim());
     }
+
 
 }

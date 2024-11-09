@@ -19,7 +19,9 @@ public class OrderServiceTest {
     public void setUp() {
         ProductService productService = new ProductService();
         PricingService pricingService = new PricingService();
-        inventory = new Inventory();
+
+        inventory = Inventory.getInstance();
+        inventory.getProductList().clear();
         orderService = new OrderService(inventory, productService, pricingService);
 
         inventory.addProduct(new Product("우아한 콜라", 1000.0, 10));
@@ -79,5 +81,6 @@ public class OrderServiceTest {
         double finalTotal = orderService.calculateFinalTotal(order);
         assertThat(finalTotal).isEqualTo(5000.0); // 3000 + 2000
     }
+
 
 }

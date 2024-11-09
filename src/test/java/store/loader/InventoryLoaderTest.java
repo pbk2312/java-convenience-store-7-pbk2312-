@@ -16,8 +16,9 @@ public class InventoryLoaderTest {
 
     @BeforeEach
     public void setUp() {
-        inventoryLoader = new InventoryLoader();
-        inventory = new Inventory();
+        // 싱글톤 인스턴스를 가져옴
+        inventoryLoader = InventoryLoader.getInstance();
+        inventory = Inventory.getInstance();
     }
 
     @Test
@@ -46,5 +47,6 @@ public class InventoryLoaderTest {
         assertThat(promotions).containsKey("반짝할인");
         assertThat(promotions.get("반짝할인").getDescription()).isEqualTo("반짝할인");
     }
+
 
 }

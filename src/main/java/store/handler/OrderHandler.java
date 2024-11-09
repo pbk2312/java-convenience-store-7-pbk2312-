@@ -23,7 +23,7 @@ public class OrderHandler {
         this.outputView = outputView;
     }
 
-    
+
     public void processProductSelection(Order order) {
         executeWithValidation(inputView::inputProductSelection, input -> validateAndAddProductsToOrder(order, input));
     }

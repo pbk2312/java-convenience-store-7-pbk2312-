@@ -24,12 +24,18 @@ public class OrderService {
     }
 
     public void addProductToOrder(Order order, String productName, int quantity) {
+        // 주문하려는 제품을 인벤토리에서 찾기
         Product product = inventory.getProductByName(productName)
                 .orElseThrow(() -> new IllegalArgumentException(ErrorMessage.NON_EXISTENT_PRODUCT.getMessage()));
 
+        // 제품 서비스에서 재고 차감 수행
         productService.deductStock(product, quantity);
+
+        inventory.adjustProductStock(product, quantity);
+
         order.addProduct(product, quantity);
         addFreeItemsToOrder(order, product, quantity);
+
     }
 
     private void addFreeItemsToOrder(Order order, Product product, int quantity) {

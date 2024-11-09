@@ -33,7 +33,7 @@ public class InventoryLoader {
     }
 
     public void loadProducts(Inventory inventory, Map<String, Promotion> promotions) {
-        if (inventory.getProductList().isEmpty()) {  // 이미 로드된 경우 다시 로드하지 않음
+        if (inventory.getProductList().isEmpty()) {
             Map<String, Integer> productCount = countProductOccurrences();
             try {
                 FileProcessor.processFile(PRODUCT_FILE_PATH,
