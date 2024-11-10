@@ -67,7 +67,6 @@ public class OrderService {
     private double calculateProductDiscount(Product product, int quantity) {
         double originalPrice = product.getPrice() * quantity;
         double discountedPrice = pricingService.calculateFinalPrice(product, quantity);
-
         return originalPrice - discountedPrice;
     }
 
