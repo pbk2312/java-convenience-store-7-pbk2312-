@@ -6,7 +6,7 @@ import java.util.Optional;
 
 public class Inventory {
 
-    private static Inventory instance;  // 싱글톤 인스턴스
+    private static Inventory instance;
 
     private final List<Product> productList = new ArrayList<>();
 
