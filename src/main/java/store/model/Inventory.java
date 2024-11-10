@@ -33,13 +33,13 @@ public class Inventory {
     }
 
     public void adjustProductStock(Product product) {
-        productList.replaceAll(p ->
-                p.getName().equals(product.getName()) && p.hasPromotion() == product.hasPromotion()
-                        ? new Product(product.getName(), product.getPrice(), product.getStock(), product.getPromotion())
-                        : p
-        );
+        productList.replaceAll(p -> {
+            if (p.getName().equals(product.getName()) && p.hasPromotion() == product.hasPromotion()) {
+                return new Product(product.getName(), product.getPrice(), product.getStock(), product.getPromotion());
+            }
+            return p;
+        });
     }
-
 
     public Optional<Product> getPromotionProductByName(String productName) {
         return productList.stream()
