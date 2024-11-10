@@ -52,7 +52,7 @@ public class AppConfig {
                 promotionProcessor(),
                 stockValidator(),
                 pricingService(),
-                membershipDiscountCalculator()
+                membershipDiscountCalculator(), inputHandler()
         );
     }
 
