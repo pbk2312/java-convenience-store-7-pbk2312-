@@ -71,6 +71,7 @@ public class OrderService {
         order.setMembership(isMembership);
     }
 
+
     public void calculateFinalTotal(Order order) {
         double eventDiscount = calculateEventDiscount(order);
 
@@ -79,9 +80,10 @@ public class OrderService {
                 .mapToDouble(entry -> entry.getKey().getPrice() * entry.getValue())
                 .sum();
 
-        double membershipDiscount = (nonPromotionalTotal > 0)
-                ? membershipDiscountCalculator.calculate(nonPromotionalTotal, order.isMembership())
-                : 0.0;
+        double membershipDiscount = 0.0;
+        if (nonPromotionalTotal > 0) {
+            membershipDiscount = membershipDiscountCalculator.calculate(nonPromotionalTotal, order.isMembership());
+        }
 
         finalizeTotal(order, eventDiscount, membershipDiscount);
     }
