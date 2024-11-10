@@ -13,4 +13,8 @@ public class TwoPlusOnePromotion implements PromotionStrategy {
         return quantity / 3;
     }
 
+    @Override
+    public int calculatePayableQuantity(int quantity) {
+        return (2 * quantity) / 3;
+    }
 }

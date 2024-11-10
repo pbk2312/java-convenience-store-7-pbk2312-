@@ -7,10 +7,14 @@ public class OnePlusOnePromotion implements PromotionStrategy {
         return payableQuantity * price;
     }
 
-
     @Override
     public int getFreeQuantity(int quantity) {
         return quantity / 2;
+    }
+
+    @Override
+    public int calculatePayableQuantity(int quantity) {
+        return (quantity + 1) / 2;
     }
 
 }

@@ -5,4 +5,6 @@ public interface PromotionStrategy {
 
     int getFreeQuantity(int quantity);
 
+    int calculatePayableQuantity(int quantity);
+
 }

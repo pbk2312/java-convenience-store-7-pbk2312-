@@ -12,4 +12,9 @@ public class FlashSalePromotion implements PromotionStrategy {
         return 0;
     }
 
+    @Override
+    public int calculatePayableQuantity(int quantity) {
+        return (int) Math.ceil(quantity * 0.8);
+    }
+
 }
