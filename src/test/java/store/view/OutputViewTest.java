@@ -27,10 +27,8 @@ public class OutputViewTest {
         inventory = Inventory.getInstance();
         inventory.getProductList().clear();
 
-        // 프로모션 로드
         Map<String, Promotion> promotions = inventoryLoader.loadPromotions();
 
-        // 제품 목록 로드
         inventoryLoader.loadProducts(inventory, promotions);
     }
 
