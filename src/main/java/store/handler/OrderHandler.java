@@ -13,6 +13,8 @@ import store.view.OutputView;
 
 public class OrderHandler {
 
+    private static final String YES = "Y";
+
     private final InputView inputView;
     private final OrderService orderService;
     private final OutputView outputView;
@@ -23,78 +25,70 @@ public class OrderHandler {
         this.outputView = outputView;
     }
 
-
     public void processProductSelection(Order order) {
-        executeWithValidation(inputView::inputProductSelection, input -> validateAndAddProductsToOrder(order, input));
+        processWithValidation(inputView::inputProductSelection, input -> addProductsToOrder(order, input));
     }
 
-
-    private void validateAndAddProductsToOrder(Order order, String input) {
+    private void addProductsToOrder(Order order, String input) {
         InputValidator.validateProductSelectionFormat(input);
         Arrays.stream(ParsingUtils.splitProducts(input, ","))
-                .forEach(productInfo -> addSingleProductToOrder(order, productInfo));
+                .forEach(productInfo -> attemptToAddSingleProduct(order, productInfo));
     }
 
-
-    private void addSingleProductToOrder(Order order, String productInfo) {
+    private void attemptToAddSingleProduct(Order order, String productInfo) {
         String productName = ParsingUtils.extractProductName(productInfo);
         int quantity = ParsingUtils.extractQuantity(productInfo);
+
         try {
             orderService.addProductToOrder(order, productName, quantity);
-        } catch (IllegalStateException e) {
+        } catch (IllegalArgumentException e) {
             outputView.printErrorMessage(e.getMessage());
         }
     }
 
-
     public void processMembershipChoice(Order order) {
-        executeWithValidation(inputView::inputMembershipChoice, input -> applyMembershipDiscountIfValid(order, input));
+        processWithValidation(inputView::inputMembershipChoice, input -> applyMembershipDiscount(order, input));
     }
 
-
-    private void applyMembershipDiscountIfValid(Order order, String input) {
+    private void applyMembershipDiscount(Order order, String input) {
         InputValidator.validateYesOrNo(input);
-        orderService.applyMembershipDiscount(order, input.equalsIgnoreCase("Y"));
+        orderService.applyMembershipDiscount(order, input.equalsIgnoreCase(YES));
     }
-
 
     public boolean confirmAdditionalPurchase() {
-        return executeWithValidationAndReturn(inputView::inputAdditionalPurchase, this::convertYesOrNoToBoolean);
+        return processWithValidationAndReturn(inputView::inputAdditionalPurchase, this::convertYesOrNoToBoolean);
     }
-
 
     private boolean convertYesOrNoToBoolean(String input) {
         InputValidator.validateYesOrNo(input);
-        return input.equalsIgnoreCase("Y");
+        return input.equalsIgnoreCase(YES);
     }
 
-
-    private <T> T executeWithValidationAndReturn(Supplier<String> inputSupplier,
-                                                 Function<String, T> validationAndProcessing) {
+    private <T> T processWithValidationAndReturn(Supplier<String> inputSupplier,
+                                                 Function<String, T> validationFunction) {
         while (true) {
             try {
-                String input = promptAndValidateInput(inputSupplier);
-                return validationAndProcessing.apply(input);
+                String input = promptForInput(inputSupplier);
+                return validationFunction.apply(input);
             } catch (IllegalArgumentException e) {
                 outputView.printErrorMessage(e.getMessage());
             }
         }
     }
 
-    private void executeWithValidation(Supplier<String> inputSupplier, Consumer<String> validationAndProcessing) {
+    private void processWithValidation(Supplier<String> inputSupplier, Consumer<String> validationFunction) {
         while (true) {
             try {
-                String input = promptAndValidateInput(inputSupplier);
-                validationAndProcessing.accept(input);
-                return;
+                String input = promptForInput(inputSupplier);
+                validationFunction.accept(input);
+                break;
             } catch (IllegalArgumentException e) {
                 outputView.printErrorMessage(e.getMessage());
             }
         }
     }
 
-
-    private String promptAndValidateInput(Supplier<String> inputSupplier) {
+    private String promptForInput(Supplier<String> inputSupplier) {
         String input = inputSupplier.get();
         InputValidator.validateNotEmpty(input);
         return input;
