@@ -43,4 +43,8 @@ public class Promotion {
         return description;
     }
 
+    public PromotionStrategy getStrategy() {
+        return strategy;
+    }
+
 }
