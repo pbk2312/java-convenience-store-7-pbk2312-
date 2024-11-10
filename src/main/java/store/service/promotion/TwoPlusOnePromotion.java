@@ -10,7 +10,7 @@ public class TwoPlusOnePromotion implements PromotionStrategy {
 
     @Override
     public int getFreeQuantity(int quantity) {
-        return quantity / 3;  // 구매한 수량의 3분의 1이 무료 증정
+        return quantity / 3;
     }
 
 }

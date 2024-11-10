@@ -10,7 +10,7 @@ public class OnePlusOnePromotion implements PromotionStrategy {
 
     @Override
     public int getFreeQuantity(int quantity) {
-        return quantity / 2;  // 구매한 수량의 절반이 무료 증정
+        return quantity / 2;
     }
 
 }
