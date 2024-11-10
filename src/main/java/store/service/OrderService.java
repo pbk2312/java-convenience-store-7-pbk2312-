@@ -1,7 +1,10 @@
 package store.service;
 
+import java.util.Optional;
+import store.handler.InputHandler;
 import store.model.Order;
 import store.model.Product;
+import store.service.promotion.OnePlusOnePromotion;
 import store.validator.StockValidator;
 
 public class OrderService {
@@ -10,15 +13,17 @@ public class OrderService {
     private final StockValidator stockValidator;
     private final PricingService pricingService;
     private final MembershipDiscountCalculator membershipDiscountCalculator;
+    private final InputHandler inputHandler;
 
     public OrderService(StockManager stockManager, PromotionProcessor promotionProcessor,
                         StockValidator stockValidator, PricingService pricingService,
-                        MembershipDiscountCalculator membershipDiscountCalculator) {
+                        MembershipDiscountCalculator membershipDiscountCalculator, InputHandler inputHandler) {
         this.stockManager = stockManager;
         this.promotionProcessor = promotionProcessor;
         this.stockValidator = stockValidator;
         this.pricingService = pricingService;
         this.membershipDiscountCalculator = membershipDiscountCalculator;
+        this.inputHandler = inputHandler;
     }
 
     public Order createOrder() {
@@ -26,16 +31,39 @@ public class OrderService {
     }
 
     public void addProductToOrder(Order order, String productName, int quantity) {
-        Product promotionProduct = stockManager.getPromotionProduct(productName).orElse(null);
+        Optional<Product> promotionProductOpt = stockManager.getPromotionProduct(productName);
         Product regularProduct = stockManager.getRegularProduct(productName);
 
-        stockValidator.validateStockAvailability(promotionProduct, regularProduct, quantity);
-
-        if (promotionProduct != null) {
+        if (promotionProductOpt.isPresent()) {
+            Product promotionProduct = promotionProductOpt.get();
+            validateAndDeductStock(order, promotionProduct, regularProduct, quantity);
+            handleFreeItems(order, promotionProduct, quantity);
             promotionProcessor.applyPartialPromotion(order, promotionProduct, regularProduct, quantity);
         } else {
+            validateAndDeductStock(order, null, regularProduct, quantity);
+        }
+    }
+
+    private void validateAndDeductStock(Order order, Product promotionProduct, Product regularProduct, int quantity) {
+        stockValidator.validateStockAvailability(promotionProduct, regularProduct, quantity);
+
+        if (promotionProduct == null) {
             stockManager.deductStock(regularProduct, quantity);
             order.addProduct(regularProduct, quantity);
+        }
+    }
+
+    private void handleFreeItems(Order order, Product promotionProduct, int quantity) {
+        if (promotionProduct == null || !(promotionProduct.getPromotion()
+                .getStrategy() instanceof OnePlusOnePromotion)) {
+            return;
+        }
+
+        if (quantity % 2 == 1) {
+            boolean addFreeItem = inputHandler.confirmAddFreePromotionItem(promotionProduct, 1);
+            if (addFreeItem) {
+                order.getFreeItems().put(promotionProduct, 1);
+            }
         }
     }
 

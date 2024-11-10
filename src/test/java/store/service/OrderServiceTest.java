@@ -38,8 +38,8 @@ public class OrderServiceTest {
                 promotionProcessor,
                 stockValidator,
                 pricingService,
-                membershipDiscountCalculator
-        );
+                membershipDiscountCalculator,
+                new InputHandler(new InputView(), new OutputView()));
 
         inventory.addProduct(new Product("우아한 콜라", 1000.0, 10));
         inventory.addProduct(new Product("우아한 사이다", 1000.0, 5));
