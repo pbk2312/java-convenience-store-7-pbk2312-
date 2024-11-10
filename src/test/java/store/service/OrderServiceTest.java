@@ -5,10 +5,13 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import store.handler.InputHandler;
 import store.model.Inventory;
 import store.model.Order;
 import store.model.Product;
 import store.view.ErrorMessage;
+import store.view.InputView;
+import store.view.OutputView;
 
 public class OrderServiceTest {
 
@@ -17,12 +20,19 @@ public class OrderServiceTest {
 
     @BeforeEach
     public void setUp() {
-        ProductService productService = new ProductService();
-        PricingService pricingService = new PricingService();
-
         inventory = Inventory.getInstance();
         inventory.getProductList().clear();
-        orderService = new OrderService(inventory, productService, pricingService);
+
+        ProductService productService = new ProductService();
+        StockManager stockManager = new StockManager(inventory, productService);
+        PromotionService promotionService = new PromotionService(productService);
+
+        InputView inputView = new InputView();
+        OutputView outputView = new OutputView();
+        InputHandler inputHandler = new InputHandler(inputView, outputView);
+
+        PricingService pricingService = new PricingService();
+        orderService = new OrderService(stockManager, promotionService, pricingService, inputHandler);
 
         inventory.addProduct(new Product("우아한 콜라", 1000.0, 10));
         inventory.addProduct(new Product("우아한 사이다", 1000.0, 5));
@@ -39,8 +49,8 @@ public class OrderServiceTest {
         Order order = orderService.createOrder();
         orderService.addProductToOrder(order, "우아한 콜라", 3);
 
-        double finalTotal = orderService.calculateFinalTotal(order);
-        assertThat(finalTotal).isEqualTo(3000.0);
+        orderService.calculateFinalTotal(order);
+        assertThat(order.getFinalTotal()).isEqualTo(3000.0);
         assertThat(inventory.getProductList().stream()
                 .filter(product -> product.getName().equals("우아한 콜라"))
                 .findFirst().get().getStock()).isEqualTo(7);
@@ -58,7 +68,7 @@ public class OrderServiceTest {
     public void testAddProductToOrder_InsufficientStock_ShouldThrowException() {
         Order order = orderService.createOrder();
         assertThatThrownBy(() -> orderService.addProductToOrder(order, "우아한 사이다", 10))
-                .isInstanceOf(IllegalStateException.class)
+                .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining(ErrorMessage.INVALID_QUANTITY.getMessage());
     }
 
@@ -68,8 +78,8 @@ public class OrderServiceTest {
         orderService.addProductToOrder(order, "우아한 콜라", 5);
 
         orderService.applyMembershipDiscount(order, true);
-        double finalTotal = orderService.calculateFinalTotal(order);
-        assertThat(finalTotal).isEqualTo(3500.0); // 5000 - 1500 (30% discount)
+        orderService.calculateFinalTotal(order);
+        assertThat(order.getFinalTotal()).isEqualTo(3500.0);
     }
 
     @Test
@@ -78,9 +88,8 @@ public class OrderServiceTest {
         orderService.addProductToOrder(order, "우아한 콜라", 3);
         orderService.addProductToOrder(order, "우아한 사이다", 2);
 
-        double finalTotal = orderService.calculateFinalTotal(order);
-        assertThat(finalTotal).isEqualTo(5000.0); // 3000 + 2000
+        orderService.calculateFinalTotal(order);
+        assertThat(order.getFinalTotal()).isEqualTo(5000.0);
     }
-
 
 }
