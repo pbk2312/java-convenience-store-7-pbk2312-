@@ -23,6 +23,7 @@ public class InventoryLoader {
     private static InventoryLoader instance;
     private final OutputView outputView = new OutputView();
 
+
     private InventoryLoader() {
     }
 
