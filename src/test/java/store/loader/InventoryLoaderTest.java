@@ -16,7 +16,6 @@ public class InventoryLoaderTest {
 
     @BeforeEach
     public void setUp() {
-        // 싱글톤 인스턴스를 가져옴
         inventoryLoader = InventoryLoader.getInstance();
         inventory = Inventory.getInstance();
     }

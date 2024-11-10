@@ -19,7 +19,6 @@ public class InventoryTest {
 
     @Test
     public void testAddProduct() {
-        // Add product
         inventory.addProduct(sampleProduct);
 
         assertThat(inventory.getProductList()).contains(sampleProduct);
@@ -27,7 +26,6 @@ public class InventoryTest {
 
     @Test
     public void testGetProductList() {
-        // Add multiple products
         Product product1 = new Product("사이다", 1000.00, 8);
         Product product2 = new Product("물", 500.00, 20);
         inventory.addProduct(sampleProduct);
