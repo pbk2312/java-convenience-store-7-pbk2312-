@@ -1,9 +1,9 @@
 package store.service;
 
-import java.util.Optional;
 import store.handler.InputHandler;
 import store.model.Order;
 import store.model.Product;
+import store.service.promotion.PromotionStrategy;
 import store.view.ErrorMessage;
 
 public class OrderService {
@@ -28,75 +28,80 @@ public class OrderService {
     }
 
     public void addProductToOrder(Order order, String productName, int quantity) {
-        Optional<Product> promotionProductOpt = stockManager.getPromotionProduct(productName);
+        Product promotionProduct = stockManager.getPromotionProduct(productName).orElse(null);
         Product regularProduct = stockManager.getRegularProduct(productName);
 
-        int totalAvailableStock = promotionProductOpt.map(Product::getStock).orElse(0) + regularProduct.getStock();
+        validateStockAvailability(promotionProduct, regularProduct, quantity);
+
+        if (promotionProduct != null) {
+            processWithPromotion(order, promotionProduct, regularProduct, quantity);
+            return;
+        }
+        processWithoutPromotion(order, regularProduct, quantity);
+    }
+
+    private void validateStockAvailability(Product promotionProduct, Product regularProduct, int quantity) {
+        int promotionalStock = promotionProduct != null ? promotionProduct.getStock() : 0;
+        int totalAvailableStock = promotionalStock + regularProduct.getStock();
 
         if (totalAvailableStock < quantity) {
             throw new IllegalArgumentException(ErrorMessage.INVALID_QUANTITY.getMessage());
         }
-
-        if (promotionProductOpt.isEmpty()) {
-            processOrderWithoutPromotion(order, regularProduct, quantity);
-        } else {
-            handlePromotion(order, promotionProductOpt.get(), regularProduct, quantity);
-        }
     }
 
-    private void handlePromotion(Order order, Product promotionProduct, Product regularProduct, int quantity) {
-        PromotionStatus status = PromotionStatus.checkStock(promotionProduct.getStock(), quantity);
-        if (status == PromotionStatus.FULL) {
-            handleFullPromotion(order, promotionProduct, quantity);
+    private void processWithPromotion(Order order, Product promotionProduct, Product regularProduct, int quantity) {
+        if (PromotionStatus.checkStock(promotionProduct.getStock(), quantity) == PromotionStatus.FULL) {
+            applyFullPromotion(order, promotionProduct, quantity);
             return;
         }
-        processPartialPromotion(order, promotionProduct, regularProduct, quantity);
+        applyPartialPromotion(order, promotionProduct, regularProduct, quantity);
     }
 
-    private void processOrderWithoutPromotion(Order order, Product regularProduct, int quantity) {
+    private void processWithoutPromotion(Order order, Product regularProduct, int quantity) {
         stockManager.deductStock(regularProduct, quantity);
         order.addProduct(regularProduct, quantity);
     }
 
-    private void handleFullPromotion(Order order, Product promotionProduct, int quantity) {
+    private void applyFullPromotion(Order order, Product promotionProduct, int quantity) {
         stockManager.deductStock(promotionProduct, quantity);
         order.addProduct(promotionProduct, quantity);
         promotionService.addFreeItems(order, promotionProduct, quantity);
     }
 
-
-    private void processPartialPromotion(Order order, Product promotionProduct, Product regularProduct,
-                                         int requestedQuantity) {
+    private void applyPartialPromotion(Order order, Product promotionProduct, Product regularProduct,
+                                       int requestedQuantity) {
         int promotionalStock = promotionProduct.getStock();
-
-        // 프로모션 할인이 적용되는 수량 계산 (예: 2+1 프로모션에서 3개 중 2개는 할인이 적용됨)
-        int fullPromotionQuantity = (requestedQuantity / 3) * 2;
+        PromotionStrategy strategy = promotionProduct.getPromotion().getStrategy();
+        int fullPromotionQuantity = strategy.calculatePayableQuantity(requestedQuantity);
 
         int usedPromotionQuantity = Math.min(promotionalStock, requestedQuantity);
+        applyPromotionalStock(order, promotionProduct, usedPromotionQuantity);
 
-        // 프로모션 재고를 모두 사용하여 주문에 추가
+        int remainingQuantity = requestedQuantity - usedPromotionQuantity;
+        applyNonPromotionalStock(order, regularProduct, remainingQuantity, requestedQuantity, fullPromotionQuantity);
+    }
+
+    private void applyPromotionalStock(Order order, Product promotionProduct, int usedPromotionQuantity) {
         if (usedPromotionQuantity > 0) {
             addOnlyPromotionalProducts(order, promotionProduct, usedPromotionQuantity);
         }
+    }
 
-        // 프로모션 재고를 모두 사용한 후, 요청된 수량에서 프로모션 재고를 뺀 남은 수량을 일반 재고에서 처리
-        int remainingQuantity = requestedQuantity - usedPromotionQuantity;
-        if (remainingQuantity > 0) {
-            if (confirmPurchaseWithoutPromotion(regularProduct, requestedQuantity - fullPromotionQuantity)) {
-                stockManager.deductStock(regularProduct, remainingQuantity);
-                order.addProduct(regularProduct, remainingQuantity);
-            }
+    private void applyNonPromotionalStock(Order order, Product regularProduct, int remainingQuantity,
+                                          int requestedQuantity, int fullPromotionQuantity) {
+        if (remainingQuantity > 0 && confirmPurchaseWithoutPromotion(regularProduct,
+                requestedQuantity - fullPromotionQuantity)) {
+            stockManager.deductStock(regularProduct, remainingQuantity);
+            order.addProduct(regularProduct, remainingQuantity);
         }
     }
 
-    // 프로모션 재고를 주문에 추가하고 무료 품목을 추가
     private void addOnlyPromotionalProducts(Order order, Product promotionProduct, int promotionalStock) {
         stockManager.deductStock(promotionProduct, promotionalStock);
         order.addProduct(promotionProduct, promotionalStock);
         promotionService.addFreeItems(order, promotionProduct, promotionalStock);
     }
 
-    // 프로모션 할인이 적용되지 않는 수량 구매 여부 확인
     private boolean confirmPurchaseWithoutPromotion(Product promotionProduct, int remainingQuantity) {
         return inputHandler.confirmPurchaseWithoutPromotion(promotionProduct, remainingQuantity);
     }
