@@ -17,4 +17,5 @@ public class TwoPlusOnePromotion implements PromotionStrategy {
     public int calculatePayableQuantity(int quantity) {
         return (2 * quantity) / 3;
     }
+    
 }
