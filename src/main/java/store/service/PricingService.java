@@ -4,11 +4,16 @@ import store.model.Product;
 
 public class PricingService {
 
+
     public double calculateFinalPrice(Product product, int quantity) {
         if (product.getPromotion() != null) {
-            return product.getPromotion().calculateDiscountedPrice(quantity, product.getPrice());
+            int freeQuantity = product.getPromotion().getFreeQuantity(quantity);
+            int paidQuantity = quantity - freeQuantity;
+
+            return product.getPrice() * paidQuantity;
         }
         return product.getPrice() * quantity;
     }
 
 }
+
