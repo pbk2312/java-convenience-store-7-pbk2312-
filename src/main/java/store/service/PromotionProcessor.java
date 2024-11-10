@@ -20,6 +20,7 @@ public class PromotionProcessor {
     public void applyPartialPromotion(Order order, Product promotionProduct, Product regularProduct, int quantity) {
         int promotionalStock = promotionProduct.getStock();
         PromotionStrategy strategy = promotionProduct.getPromotion().getStrategy();
+
         int fullPromotionQuantity = strategy.calculatePayableQuantity(quantity);
 
         int usedPromotionQuantity = Math.min(promotionalStock, quantity);
