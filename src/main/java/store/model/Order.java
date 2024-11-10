@@ -1,6 +1,7 @@
 package store.model;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class Order {
@@ -80,20 +81,25 @@ public class Order {
     }
 
     public Map<String, ProductSummary> getAggregatedOrderSummary() {
-        Map<String, ProductSummary> summaryMap = new HashMap<>();
-
-        orderedProducts.forEach((product, quantity) -> {
-            String productName = product.getName();
-            double totalProductPrice = product.getPrice() * quantity;
-
-            summaryMap.putIfAbsent(productName, new ProductSummary(0, 0.0));
-            ProductSummary summary = summaryMap.get(productName);
-
-            summary.addQuantity(quantity);
-            summary.addTotalPrice(totalProductPrice);
-        });
-
+        Map<String, ProductSummary> summaryMap = new LinkedHashMap<>();
+        orderedProducts.forEach((product, quantity) -> updateSummaryMap(summaryMap, product, quantity));
         return summaryMap;
     }
+
+    private void updateSummaryMap(Map<String, ProductSummary> summaryMap, Product product, int quantity) {
+        String productName = product.getName();
+        double totalProductPrice = calculateTotalProductPrice(product, quantity);
+
+        summaryMap.putIfAbsent(productName, new ProductSummary(0, 0.0));
+        ProductSummary summary = summaryMap.get(productName);
+
+        summary.addQuantity(quantity);
+        summary.addTotalPrice(totalProductPrice);
+    }
+
+    private double calculateTotalProductPrice(Product product, int quantity) {
+        return product.getPrice() * quantity;
+    }
+
 
 }
