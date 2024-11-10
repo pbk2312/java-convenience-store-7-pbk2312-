@@ -23,13 +23,11 @@ public class ReceiptPrinter {
         System.out.println("=====================================");
     }
 
-    // 구매 내역을 출력하는 메서드
     private void printPurchaseDetails(Order order) {
         System.out.println("상품명\t\t수량\t금액");
 
         Map<String, ProductSummary> orderSummary = order.getAggregatedOrderSummary();
 
-        // 가져온 요약 정보를 사용하여 출력
         orderSummary.forEach((name, summary) -> {
             System.out.printf("%s\t\t%d\t%s%n",
                     name,
@@ -38,7 +36,6 @@ public class ReceiptPrinter {
         });
     }
 
-    // 증정품 섹션을 출력하는 메서드
     private void printFreeItemsSection(Order order) {
         Map<Product, Integer> freeItems = order.getFreeItems();
         if (!freeItems.isEmpty()) {

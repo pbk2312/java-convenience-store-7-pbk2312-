@@ -84,6 +84,5 @@ public class AppConfig {
     public StoreController createStoreController() {
         return new StoreController(inventory(), orderHandler(), orderService(), outputView());
     }
-
-
+    
 }
