@@ -88,6 +88,10 @@
     - `OnePlusOnePromotion`: 1+1 혜택, 구매 수량의 절반이 무료
     - `TwoPlusOnePromotion`: 2+1 혜택, 구매 수량의 1/3이 무료
 
+- **StockValidator**: 재고 유효성 검사
+
+- **ParsingUtils**: 문자열 파싱 유틸리티
+
 ----
 
 ## 프로그래밍 요구 사항
