@@ -9,7 +9,7 @@ public class FlashSalePromotion implements PromotionStrategy {
 
     @Override
     public int getFreeQuantity(int quantity) {
-        return 0;  // 반짝 할인은 무료 증정 품목이 없음
+        return 0;
     }
 
 }
