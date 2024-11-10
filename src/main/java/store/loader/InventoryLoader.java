@@ -14,13 +14,14 @@ import store.service.promotion.OnePlusOnePromotion;
 import store.service.promotion.TwoPlusOnePromotion;
 import store.util.ParsingUtils;
 import store.view.ErrorMessage;
+import store.view.OutputView;
 
 public class InventoryLoader {
 
     private static final String PRODUCT_FILE_PATH = "src/main/resources/products.md";
     private static final String PROMOTION_FILE_PATH = "src/main/resources/promotions.md";
-
     private static InventoryLoader instance;
+    private final OutputView outputView = new OutputView();
 
     private InventoryLoader() {
     }
@@ -54,7 +55,6 @@ public class InventoryLoader {
         return promotions;
     }
 
-
     private void processProductLine(String line, Inventory inventory, Map<String, Promotion> promotions,
                                     Map<String, Integer> productCount) {
         Product product = parseProduct(line, promotions);
@@ -78,7 +78,8 @@ public class InventoryLoader {
         int get = ParsingUtils.parseInt(parts[2]);
         LocalDate startDate = ParsingUtils.parseLocalDate(parts[3]);
         LocalDate endDate = ParsingUtils.parseLocalDate(parts[4]);
-        promotions.put(name, PromotionFactory.createPromotion(name, buy, get, startDate, endDate));
+        PromotionType promotionType = PromotionType.fromValues(name, buy, get);
+        promotions.put(name, PromotionFactory.createPromotion(promotionType, startDate, endDate));
     }
 
     private void addZeroStockProductIfNeeded(Inventory inventory, Product product, Map<String, Integer> productCount) {
@@ -106,8 +107,8 @@ public class InventoryLoader {
         productCount.put(productName, productCount.getOrDefault(productName, 0) + 1);
     }
 
-    private static void logError(ErrorMessage errorMessage, Exception e) {
-        System.err.println(errorMessage.getMessage() + ": " + e.getMessage());
+    private void logError(ErrorMessage errorMessage, Exception e) {
+        outputView.printErrorMessage(errorMessage.getMessage() + ": " + e.getMessage());
     }
 
     public static class FileProcessor {
@@ -118,30 +119,35 @@ public class InventoryLoader {
         }
     }
 
-    private static class PromotionFactory {
-        public static Promotion createPromotion(String name, int buy, int get, LocalDate startDate, LocalDate endDate) {
+    private enum PromotionType {
+        FLASH_SALE, ONE_PLUS_ONE, TWO_PLUS_ONE, NONE;
+
+        public static PromotionType fromValues(String name, int buy, int get) {
             if ("반짝할인".equals(name)) {
-                return createFlashSalePromotion(startDate, endDate);
+                return FLASH_SALE;
             }
             if (buy == 1 && get == 1) {
-                return createOnePlusOnePromotion(startDate, endDate);
+                return ONE_PLUS_ONE;
             }
             if (buy == 2 && get == 1) {
-                return createTwoPlusOnePromotion(startDate, endDate);
+                return TWO_PLUS_ONE;
+            }
+            return NONE;
+        }
+    }
+
+    private static class PromotionFactory {
+        public static Promotion createPromotion(PromotionType type, LocalDate startDate, LocalDate endDate) {
+            if (type == PromotionType.FLASH_SALE) {
+                return new Promotion(new FlashSalePromotion(), startDate, endDate, "반짝할인");
+            }
+            if (type == PromotionType.ONE_PLUS_ONE) {
+                return new Promotion(new OnePlusOnePromotion(), startDate, endDate, "MD추천상품");
+            }
+            if (type == PromotionType.TWO_PLUS_ONE) {
+                return new Promotion(new TwoPlusOnePromotion(), startDate, endDate, "탄산2+1");
             }
             return null;
-        }
-
-        private static Promotion createFlashSalePromotion(LocalDate startDate, LocalDate endDate) {
-            return new Promotion(new FlashSalePromotion(), startDate, endDate, "반짝할인");
-        }
-
-        private static Promotion createOnePlusOnePromotion(LocalDate startDate, LocalDate endDate) {
-            return new Promotion(new OnePlusOnePromotion(), startDate, endDate, "MD추천상품");
-        }
-
-        private static Promotion createTwoPlusOnePromotion(LocalDate startDate, LocalDate endDate) {
-            return new Promotion(new TwoPlusOnePromotion(), startDate, endDate, "탄산2+1");
         }
     }
 
