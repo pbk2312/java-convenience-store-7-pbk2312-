@@ -9,6 +9,7 @@ import store.handler.InputHandler;
 import store.model.Inventory;
 import store.model.Order;
 import store.model.Product;
+import store.validator.StockValidator;
 import store.view.ErrorMessage;
 import store.view.InputView;
 import store.view.OutputView;
@@ -26,13 +27,19 @@ public class OrderServiceTest {
         ProductService productService = new ProductService();
         StockManager stockManager = new StockManager(inventory, productService);
         PromotionService promotionService = new PromotionService(productService);
-
-        InputView inputView = new InputView();
-        OutputView outputView = new OutputView();
-        InputHandler inputHandler = new InputHandler(inputView, outputView);
-
+        PromotionProcessor promotionProcessor = new PromotionProcessor(stockManager, promotionService,
+                new InputHandler(new InputView(), new OutputView()));
+        StockValidator stockValidator = new StockValidator();
         PricingService pricingService = new PricingService();
-        orderService = new OrderService(stockManager, promotionService, pricingService, inputHandler);
+        MembershipDiscountCalculator membershipDiscountCalculator = new MembershipDiscountCalculator();
+
+        orderService = new OrderService(
+                stockManager,
+                promotionProcessor,
+                stockValidator,
+                pricingService,
+                membershipDiscountCalculator
+        );
 
         inventory.addProduct(new Product("우아한 콜라", 1000.0, 10));
         inventory.addProduct(new Product("우아한 사이다", 1000.0, 5));

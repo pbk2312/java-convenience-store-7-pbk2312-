@@ -79,4 +79,21 @@ public class Order {
         this.isMembership = isMembership;
     }
 
+    public Map<String, ProductSummary> getAggregatedOrderSummary() {
+        Map<String, ProductSummary> summaryMap = new HashMap<>();
+
+        orderedProducts.forEach((product, quantity) -> {
+            String productName = product.getName();
+            double totalProductPrice = product.getPrice() * quantity;
+
+            summaryMap.putIfAbsent(productName, new ProductSummary(0, 0.0));
+            ProductSummary summary = summaryMap.get(productName);
+
+            summary.addQuantity(quantity);
+            summary.addTotalPrice(totalProductPrice);
+        });
+
+        return summaryMap;
+    }
+
 }
