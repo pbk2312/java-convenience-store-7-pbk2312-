@@ -45,8 +45,16 @@ public class OrderService {
 
     public void calculateFinalTotal(Order order) {
         double eventDiscount = calculateEventDiscount(order);
-        double membershipDiscount = membershipDiscountCalculator.calculate(
-                order.getTotalBeforeDiscount() - eventDiscount, order.isMembership());
+
+        double nonPromotionalTotal = order.getOrderedProducts().entrySet().stream()
+                .filter(entry -> !entry.getKey().hasPromotion())
+                .mapToDouble(entry -> entry.getKey().getPrice() * entry.getValue())
+                .sum();
+
+        double membershipDiscount = (nonPromotionalTotal > 0)
+                ? membershipDiscountCalculator.calculate(nonPromotionalTotal, order.isMembership())
+                : 0.0;
+
         finalizeTotal(order, eventDiscount, membershipDiscount);
     }
 
@@ -59,6 +67,7 @@ public class OrderService {
     private double calculateProductDiscount(Product product, int quantity) {
         double originalPrice = product.getPrice() * quantity;
         double discountedPrice = pricingService.calculateFinalPrice(product, quantity);
+
         return originalPrice - discountedPrice;
     }
 
