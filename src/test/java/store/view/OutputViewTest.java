@@ -69,5 +69,4 @@ public class OutputViewTest {
         assertThat(outputStreamCaptor.toString().trim()).isEqualTo(expectedOutput.trim());
     }
 
-
 }
