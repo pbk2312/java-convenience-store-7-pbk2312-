@@ -49,7 +49,8 @@
 
 # 기능 목록 정리
 
-- [x] # 입력(InputView)
+[x]  입력(InputView)
+
 - `inputProductSelection()`:
     - 사용자로부터 상품 선택 및 수량을 입력받습니다.
 - `inputMembershipChoice()`:
@@ -66,7 +67,7 @@
     - 주어진 메시지를 콘솔에 출력하고 사용자 입력을 읽어 반환하는 내부 유틸리티 메소드
     - `Console.readLine()`을 통해 입력을 받아옵니다.
 
--[x] # 입력에 대한 검증 (InputValidator)
+[x]  입력에 대한 검증 (InputValidator)
 
 - `validateProductSelectionFormat(String input)`:
     - 사용자가 입력한 상품과 수량의 형식을 검증하고,입력이 유효한지 확인합니다.
@@ -91,7 +92,7 @@
         - `'A'` → `[ERROR] Y 또는 N을 입력해 주세요.` (`INVALID_YES_NO`)
         - `'Yes'` → `[ERROR] Y 또는 N을 입력해 주세요.` (`INVALID_YES_NO`)
 
-- [x] # Service & model
+[x] Service & model
 
 ## Inventory (재고 관리)
 
@@ -290,8 +291,7 @@
     - **`getPromotionProduct(String productName)`**: 프로모션이 적용된 제품을 `Optional`로 반환합니다.
     - **`getRegularProduct(String productName)`**: 프로모션이 없는 일반 제품을 반환하며 존재하지 않으면 예외를 발생시킵니다.
     - **`deductStock(Product product, int quantity)`**: 제품 서비스에서 재고를 차감하며 재고 정보를 업데이트합니다.
-
-- [x] # 출력기 (OutputView)
+      [x]  출력기 (OutputView)
 
 ## OutputView (출력 뷰)
 
@@ -310,7 +310,7 @@
     - **`getPromotionText(Product product)`**: 제품의 프로모션 정보를 반환합니다.
     - **`getStockText(Product product)`**: 제품의 재고 상태를 반환합니다.
 
-- [x] # Hanlder
+[x] # Hanlder
 
 ## OrderHandler (주문 통합 처리)
 
@@ -330,8 +330,7 @@
     - **`processWithValidationAndReturn(Supplier<String> inputSupplier, Function<String, T> validationFunction)`**: 입력
       검증 후 결과를 반환합니다.
 
-
-- [x] # 컨트롤러(storeController)
+[x] # 컨트롤러(storeController)
 
 ## StoreController (스토어 컨트롤러)
 
