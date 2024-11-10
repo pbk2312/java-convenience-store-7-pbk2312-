@@ -101,5 +101,4 @@ public class Order {
         return product.getPrice() * quantity;
     }
 
-
 }

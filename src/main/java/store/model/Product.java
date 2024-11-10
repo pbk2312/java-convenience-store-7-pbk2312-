@@ -45,5 +45,4 @@ public class Product {
         return promotion != null && promotion.isActive(DateTimes.now().toLocalDate());
     }
 
-
 }
