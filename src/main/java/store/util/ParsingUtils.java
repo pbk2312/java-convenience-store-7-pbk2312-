@@ -27,11 +27,7 @@ public class ParsingUtils {
     public static LocalDate parseLocalDate(String date) {
         return LocalDate.parse(date);
     }
-
-    public static boolean isNullValue(String value) {
-        return "null".equals(value);
-    }
-
+    
     // 인스턴스화 방지
     private ParsingUtils() {
     }
