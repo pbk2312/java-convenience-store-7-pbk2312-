@@ -11,7 +11,7 @@ public enum ErrorMessage {
     PRODUCT_LOAD_ERROR("제품 정보를 불러오는 중 오류가 발생했습니다."),
     PROMOTION_LOAD_ERROR("프로모션 정보를 불러오는 중 오류가 발생했습니다."),
     INVALID_PROMOTION_DATES("프로모션 시작일은 종료일보다 이전이어야 합니다."),
-    No_PURCHASE("쇼핑의 길은 끝이 없으니... 무한 지옥에 오신 것을 환영합니다!"),
+    No_PURCHASE("이 기회를 놓치면 다시는 안 와! 꼭 잡아야 해!"),
     MUST_GET_ONE_MORE("안돼! 넌 무조건 1개 더받아야해!");
     private static final String ERROR_PREFIX = "[ERROR] ";
     private final String message;
